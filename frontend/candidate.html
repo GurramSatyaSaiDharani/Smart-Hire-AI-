@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Dashboard - Smart Hire AI</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js CDN for Analytics & Performance Trends -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="logo-icon">SH</div>
+            <span>Smart Hire AI</span>
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="candidate.html" class="active">Candidate Dashboard</a></li>
+            <li><a href="aimockinterview.html">AI Mock Interview</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="app-container">
+
+        <!-- Welcome Banner -->
+        <div class="card" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white;">
+            <span class="badge" style="background: rgba(255,255,255,0.2); color: white; margin-bottom: 10px;">Candidate Portal</span>
+            <h1 style="color: white; margin-bottom: 5px;">Welcome back, <span id="candidateName">Candidate</span>! 👋</h1>
+            <p style="color: #e0e7ff; font-size: 16px;">Track your interview performance, skill analytics, weak areas, and download evaluation reports.</p>
+        </div>
+
+        <!-- Section 8.1 Performance Overview Cards -->
+        <div class="grid-3" id="performanceOverviewGrid">
+            <div class="metric-card">
+                <div class="card-title">Overall Interview Score</div>
+                <div class="card-val" id="candOverallScore" style="color: var(--primary);">--</div>
+                <span class="badge badge-blue" id="candOverallGrade">Loading...</span>
+            </div>
+            <div class="metric-card">
+                <div class="card-title">Avg Communication Score</div>
+                <div class="card-val" id="candCommScore" style="color: var(--success);">--</div>
+            </div>
+            <div class="metric-card">
+                <div class="card-title">Completed AI Interviews</div>
+                <div class="card-val" id="candInterviewCount" style="color: var(--secondary);">--</div>
+            </div>
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Quick Actions</h2>
+            </div>
+            <div class="btn-group">
+                <button onclick="window.location.href='aimockinterview.html'" class="btn btn-primary">
+                    🎙️ AI Mock Interview & Speech Analysis
+                </button>
+                <button onclick="window.location.href='upload_resume.html'" class="btn btn-secondary">
+                    📄 Upload Resume
+                </button>
+                <button onclick="window.location.href='jobs.html'" class="btn btn-secondary">
+                    💼 View Available Jobs
+                </button>
+                <button onclick="logout()" class="btn btn-danger">
+                    🚪 Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 8.6 Performance Trends -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📈 Performance Trends Across Interviews</h2>
+                <div id="trendStatusBadge">
+                    <span class="trend-badge trend-stable">Calculating trends...</span>
+                </div>
+            </div>
+            <div id="trendDeltaSummary" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 15px;">
+                Analyzing historical interview scores...
+            </div>
+            <div style="position: relative; height: 280px; width: 100%;">
+                <canvas id="performanceTrendsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Section 8.3 Skill-wise Analytics & Section 8.4 Weak-area Prediction Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            
+            <!-- Skill-wise Analytics Radar/Bar Chart & Detailed Skill List -->
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-header">
+                    <h2>🎯 Skill-wise Analytics</h2>
+                </div>
+                <div style="position: relative; height: 260px; width: 100%; margin-bottom: 15px;">
+                    <canvas id="skillsRadarChart"></canvas>
+                </div>
+                <div id="skillsListGrid" style="display: flex; flex-direction: column; gap: 10px; max-height: 220px; overflow-y: auto; padding-right: 5px;">
+                    <!-- Dynamically populated skill breakdown bars -->
+                </div>
+            </div>
+
+            <!-- AI Weak-area Prediction System -->
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-header">
+                    <h2>⚠️ AI Weak-Area Prediction</h2>
+                </div>
+                <div id="weakAreasContainer">
+                    <div style="text-align: center; padding: 30px; color: var(--text-muted);">
+                        Analyzing performance data for weak skills...
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Section 8.5 Score Breakdown & Sub-scores -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📊 Latest Interview Score Breakdown & Sub-scores</h2>
+            </div>
+            <div id="scoreBreakdownContent">
+                <div style="text-align: center; padding: 25px; color: var(--text-muted);">
+                    Loading latest interview evaluation metrics...
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 8.6 AI Feedback & Skill Improvement Progress -->
+        <div class="card">
+            <div class="card-header">
+                <h2>🧠 AI Feedback & Skill Improvement Progress</h2>
+                <span class="badge badge-green" id="candImprovementBadge">Trajectory: Stable</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 18px; border-radius: 12px;">
+                    <div style="font-size: 12px; font-weight: 800; color: #1e40af; text-transform: uppercase; margin-bottom: 6px;">Qualitative AI Feedback Summary</div>
+                    <p id="candAiFeedbackText" style="font-size: 13px; color: #1e3a8a; line-height: 1.6; margin: 0;">
+                        Candidate demonstrates high composure, articulate technical explanation structure, and steady eye focus. Continue expanding system design depth.
+                    </p>
+                </div>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 18px; border-radius: 12px;">
+                    <div style="font-size: 12px; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 6px;">Skill Growth Trajectory</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 13px; color: #64748b;">Historical Growth:</span>
+                        <strong id="candGrowthPct" style="font-size: 18px; color: #10b981;">+8.5%</strong>
+                    </div>
+                    <div style="width: 100%; background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 8px;">
+                        <div id="candGrowthProgressBar" style="width: 85%; background: linear-gradient(90deg, #2563eb, #10b981); height: 100%; border-radius: 4px;"></div>
+                    </div>
+                    <div style="font-size: 11px; color: #64748b;">Evaluated across all completed interview sessions</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 9.1 Upcoming Scheduled Interviews -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📅 Scheduled Interviews & Reminders</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="vault-table">
+                    <thead>
+                        <tr>
+                            <th>Recruiter</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Reminder Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="upcomingInterviewsTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding: 20px; color: var(--text-muted);">
+                                Loading scheduled interviews...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 8.2 Interview History & Reports -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📜 Candidate Interview History & Downloadable Reports</h2>
+                <button onclick="loadCandidateDashboardData()" class="btn btn-secondary" style="font-size: 13px; padding: 6px 14px;">🔄 Refresh History</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="vault-table">
+                    <thead>
+                        <tr>
+                            <th>Session ID</th>
+                            <th>Date & Time</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Overall Score</th>
+                            <th>Grade</th>
+                            <th>Sub-Scores (Comm / Conf / Tech / Prof)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="interviewHistoryTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align:center; padding: 25px; color: var(--text-muted);">
+                                Loading previous interviews from database...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 9: Email Notifications & Alert Center Vault -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📩 Candidate Email Notifications & System Alerts</h2>
+                <button onclick="toggleNotificationModal()" class="btn btn-primary" style="font-size: 13px; padding: 6px 14px;">📤 Email Hub / Dispatch Test</button>
+            </div>
+            <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 15px;">
+                View sent email notifications, interview invitations, AI score digests, and real-time proctoring alerts.
+            </div>
+            <div id="candNotifList" style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="padding: 15px; background: #eff6ff; border-left: 4px solid #2563eb; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 700; color: #1e293b; font-size: 14px;">
+                        <span>📩 Interview Invitation Email Dispatched</span>
+                        <span class="badge badge-green">SMTP / Dev Logged</span>
+                    </div>
+                    <p style="margin: 4px 0 0 0; font-size: 13px; color: #475569;">Confirmation reminder email dispatched for candidate interview session.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Candidate Detailed Interview Modal -->
+    <div id="candidateDetailsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.75); backdrop-filter:blur(6px); z-index:1000; overflow-y:auto; padding:30px 15px;">
+        <div style="max-width:850px; margin:auto; background:#ffffff; border-radius:16px; padding:28px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.3); position:relative;">
+            <button onclick="closeCandidateModal()" style="position:absolute; top:18px; right:20px; border:none; background:none; font-size:24px; cursor:pointer; color:#64748b;">✕</button>
+            <div id="modalCandidateContent">
+                <!-- Injected interview details -->
+            </div>
+        </div>
+    </div>
+
+    <script src="toast.js"></script>
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const u = localStorage.getItem("username");
+            if (u) document.getElementById("candidateName").innerText = u;
+            loadCandidateDashboardData();
+        });
+    </script>
+</body>
+</html>

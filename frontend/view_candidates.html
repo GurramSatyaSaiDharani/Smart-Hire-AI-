@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Roster & Performance Analytics - Smart Hire AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="logo-icon">SH</div>
+            <span>Smart Hire AI</span>
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="admin.html">Admin Console</a></li>
+            <li><a href="recruiter.html">Recruiter Dashboard</a></li>
+            <li><a href="view_candidates.html" class="active">Candidate Roster</a></li>
+            <li><a href="view_reports.html">Reports Vault</a></li>
+        </ul>
+    </nav>
+
+    <div class="app-container">
+        
+        <div class="card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white;">
+            <span class="badge badge-blue" style="margin-bottom: 10px;">Executive Roster</span>
+            <h1 style="color: white; margin-bottom: 5px;">Candidate Pool & Performance Evaluation Analytics</h1>
+            <p style="color: #94a3b8;">Review candidate quality scores, Section 6 computer vision telemetry, Section 7 weighted formula sub-scores, and AI recommendations.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Evaluated Candidate Roster</h2>
+                <button onclick="loadCandidateRoster()" class="btn btn-secondary" style="font-size: 13px; padding: 6px 14px;">🔄 Refresh Roster</button>
+            </div>
+
+            <!-- Dynamic Candidate Cards Grid -->
+            <div id="candidateRosterGrid" class="grid-3">
+                <div style="grid-column: 1 / -1; text-align: center; padding: 30px; color: var(--text-muted);">
+                    Loading candidates from database...
+                </div>
+            </div>
+
+            <br><br>
+            <div style="text-align: center; display: flex; justify-content: center; gap: 15px;">
+                <button onclick="window.location.href='recruiter.html'" class="btn btn-primary">
+                    ⬅️ Back to Recruiter Dashboard
+                </button>
+                <button onclick="window.location.href='admin.html'" class="btn btn-secondary">
+                    ⚙️ Back to Admin Console
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Candidate Detailed Performance Modal -->
+    <div id="candidateDetailsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.75); backdrop-filter:blur(6px); z-index:1000; overflow-y:auto; padding:30px 15px;">
+        <div style="max-width:850px; margin:auto; background:#ffffff; border-radius:16px; padding:28px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.3); position:relative;">
+            <button onclick="closeCandidateModal()" style="position:absolute; top:18px; right:20px; border:none; background:none; font-size:24px; cursor:pointer; color:#64748b;">✕</button>
+            
+            <div id="modalCandidateContent">
+                <!-- Dynamically injected candidate details -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCandidateRoster();
+        });
+    </script>
+</body>
+</html>

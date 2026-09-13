@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Hire AI - Interview Studio & Communication Analysis</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Professional Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="logo-icon">SH</div>
+            <span>Smart Hire AI</span>
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="candidate.html">Candidate Dashboard</a></li>
+            <li><a href="aimockinterview.html" class="active">AI Mock Interview</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+
+        <!-- Protocol / Permission Notice Banner -->
+        <div id="protocolWarning" style="display:none; background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:12px 18px; border-radius:10px; margin-bottom:20px; font-size:14px;"></div>
+
+        <div class="card">
+            
+            <div class="card-header">
+                <div>
+                    <h2>AI Mock Interview Studio</h2>
+                    <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Session Lifecycle Management & Video Recording</p>
+                </div>
+                <div>
+                    Status: <span id="sessionStateBadge" class="badge badge-blue">CREATED</span>
+                </div>
+            </div>
+
+            <!-- Webcam Video Stream Preview Box -->
+            <div class="video-preview-container" style="position: relative; overflow: hidden; border-radius: var(--radius-md);">
+                <video id="webcamPreview" autoplay muted style="width: 100%; display: block; border-radius: var(--radius-md);"></video>
+                <canvas id="emotionEyeCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+                <div id="cameraStatusBadge" class="video-overlay-badge">
+                    🟡 Requesting Camera...
+                </div>
+
+                <div id="topAlertBanner" style="display:none; position: absolute; top: 12px; left: 12px; right: 12px; background: rgba(239, 68, 68, 0.95); color: white; padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; text-align: center; box-shadow: 0 4px 12px rgba(239,68,68,0.4); z-index: 10; backdrop-filter: blur(4px);">
+                    ⚠️ Session Alert Active
+                </div>
+
+                <!-- Section 6: Real-time Live HUD Overlays -->
+                <div id="hudEmotionBar" style="position: absolute; bottom: 12px; left: 12px; right: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 12px; font-weight: 600;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span>😊 Emotion:</span>
+                        <span id="hudEmotionBadge" style="background:#3b82f6; padding:2px 8px; border-radius:12px;">Neutral (90%)</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span>👁️ Eye Contact:</span>
+                        <span id="hudEyeBadge" style="background:#10b981; padding:2px 8px; border-radius:12px;">Direct (95%)</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span>🎯 Focus:</span>
+                        <span id="hudAttentionBadge" style="background:#8b5cf6; padding:2px 8px; border-radius:12px;">98%</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px; flex-grow: 1; max-width: 180px;">
+                        <span style="font-size: 11px;">🔥 Engagement:</span>
+                        <div style="flex-grow: 1; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden;">
+                            <div id="hudEngagementBar" style="width: 85%; height: 100%; background: linear-gradient(90deg, #06b6d4, #10b981); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-Time Timers Display Bar -->
+            <div class="timers-bar">
+                <div class="timer-box">
+                    <div class="label">Total Duration</div>
+                    <div id="totalDurationClock" class="val" style="color: var(--primary);">00:00</div>
+                </div>
+                <div class="timer-box">
+                    <div class="label">Question Time</div>
+                    <div id="questionClock" class="val" style="color: var(--secondary);">00:00</div>
+                </div>
+                <div class="timer-box">
+                    <div class="label">Total Questions</div>
+                    <div id="qCounterDisplay" class="val" style="color: var(--warning);">1 / 5</div>
+                </div>
+            </div>
+
+            <!-- Interview Question Box -->
+            <div style="background: var(--primary-light); border-left: 5px solid var(--primary); padding: 20px; border-radius: var(--radius-md); margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 13px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px;">🎯 INTERVIEW QUESTION</span>
+                    <button onclick="nextQuestion()" class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;">➡️ Next Question</button>
+                </div>
+                <p id="interviewQuestion" style="font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0;">
+                    Tell me about a challenging technical project you led and how you managed key obstacles.
+                </p>
+            </div>
+
+            <!-- Session Lifecycle Action Controls -->
+            <div class="btn-group" style="justify-content: center; margin-bottom: 20px;">
+                <button onclick="startSession()" class="btn btn-success">
+                    ▶️ Start Session
+                </button>
+                <button onclick="pauseSession()" class="btn btn-warning">
+                    ⏸️ Pause Session
+                </button>
+                <button onclick="resumeSession()" class="btn btn-primary">
+                    ⏯️ Resume Session
+                </button>
+                <button onclick="endSession()" class="btn btn-danger">
+                    ⏹️ End & Finish Session
+                </button>
+                <button onclick="loadSampleAnswer()" class="btn btn-secondary">
+                    📝 Load Sample Response
+                </button>
+                <button onclick="clearTranscript()" class="btn btn-secondary">
+                    🧹 Clear
+                </button>
+            </div>
+
+            <!-- Real-Time Live Session Alerts & Proctoring Feed Card -->
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                    <div>
+                        <h4 style="margin: 0; font-size: 16px; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+                            🚨 Live Session Alerts & Proctoring Log
+                        </h4>
+                        <span style="font-size: 12px; color: #64748b;">Real-time attention shifts, duration alerts, and notification events</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button onclick="triggerSessionAlert('offscreen', '⚠️ Eye Tracking Alert: Candidate gaze shifted away from camera (>3s)')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;">
+                            👁️ Test Eye Alert
+                        </button>
+                        <button onclick="triggerSessionAlert('timer', '⏳ Session Warning: 30 seconds remaining for response')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;">
+                            ⏱️ Test Timer Alert
+                        </button>
+                        <button onclick="triggerSessionAlert('email', '📩 Session Digest Email Notification sent to candidate')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;">
+                            📧 Test Email Alert
+                        </button>
+                    </div>
+                </div>
+                <div id="sessionAlertsFeed" style="display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 4px; font-size: 13px;">
+                        <span>🟢 <b>SESSION INITIALIZED:</b> Ready to start AI Mock Interview session.</span>
+                        <span style="font-size: 11px; color: #64748b;">System Ready</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizer Waveform Canvas -->
+            <div class="visualizer-container">
+                <canvas id="audioVisualizerCanvas" width="800" height="50"></canvas>
+            </div>
+
+            <!-- 1. Real-Time Speech Transcription Box -->
+            <div class="form-group">
+                <label class="form-label" style="display: flex; justify-content: space-between;">
+                    <span>1. Real-Time Speech-to-Text Transcription</span>
+                    <span style="font-size: 12px; color: var(--text-muted);">Web Speech Engine</span>
+                </label>
+                <textarea id="transcriptArea" class="transcript-box" placeholder="Click 'Start Session' and speak into your microphone, or type your answer here..."></textarea>
+            </div>
+
+            <!-- Live Metrics Bar -->
+            <div style="display: flex; justify-content: space-between; padding: 12px 18px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 25px;">
+                <span>Total Words: <strong id="wordCountDisplay" style="color: var(--text-primary);">0</strong></span>
+                <span>Live Speech Pace: <strong id="liveWpmDisplay" style="color: var(--primary);">0</strong> WPM</span>
+                <span>Fillers Detected: <strong id="liveFillerDisplay" style="color: var(--warning);">0</strong></span>
+            </div>
+
+            <!-- Video Recording Playback Player -->
+            <div id="videoPlaybackContainer" style="margin-bottom: 25px;">
+                <h3>Recorded Candidate Video Playback</h3>
+                <video id="completedVideoPlayer" controls style="display:none; width:100%; max-width:640px; height:360px; border-radius: var(--radius-md); background:#000; margin:auto;"></video>
+            </div>
+
+            <!-- Post-Speech Communication Analysis Dashboard Report -->
+            <div id="reportContainer" style="display: none; border-top: 2px solid var(--border-color); padding-top: 30px; margin-top: 20px;">
+                
+                <h2 style="text-align: center; margin-bottom: 20px;">📊 Communication Quality Assessment Dashboard</h2>
+
+                <!-- Overall Quality Hero Card -->
+                <div class="score-hero-box">
+                    <div style="text-align: center;">
+                        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">OVERALL PERFORMANCE</span>
+                        <div id="overallGrade" class="grade-badge-huge" style="margin-top: 5px;">Grade -</div>
+                    </div>
+
+                    <div class="score-circle-large">
+                        <div id="overallScore" class="num">0</div>
+                        <div class="sub">INDEX / 100</div>
+                    </div>
+
+                    <div style="max-width: 320px; font-size: 14px; color: #cbd5e1; text-align: left;">
+                        Synthesis of grammar accuracy, speech pace, filler control, enunciation clarity, and sentence fluency.
+                    </div>
+                </div>
+
+                <!-- 4 Metric Score Cards Grid -->
+                <div class="grid-3">
+                    <div class="metric-card">
+                        <div class="card-title">Grammar Accuracy</div>
+                        <div id="grammarScore" class="card-val" style="color: var(--primary);">0%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-title">Speech Pace Score</div>
+                        <div id="paceScore" class="card-val" style="color: var(--secondary);">0%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-title">Filler Word Control</div>
+                        <div id="fillerScore" class="card-val" style="color: var(--warning);">0%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-title">Pronunciation Clarity</div>
+                        <div id="pronunciationScore" class="card-val" style="color: var(--success);">0%</div>
+                    </div>
+                </div>
+
+                <!-- 2. Speech Pace Analysis -->
+                <div style="margin-bottom: 25px;">
+                    <h3>2. Speech Pace Analysis</h3>
+                    <p style="font-size: 15px;">
+                        Candidate Pacing: <strong id="paceWpmVal">0 WPM</strong> 
+                        <span id="paceStatusBadge" class="badge">N/A</span>
+                    </p>
+                    <p id="paceFeedback" style="color: var(--text-secondary); font-size: 14px;"></p>
+                </div>
+
+                <!-- 3. Filler-Word Detection -->
+                <div style="margin-bottom: 25px;">
+                    <h3>3. Filler-Word Detection</h3>
+                    <p style="font-size: 15px;">Total Fillers: <strong id="totalFillersVal">0</strong></p>
+                    <div id="fillerBreakdownList"></div>
+                </div>
+
+                <!-- 4. Grammar Checking -->
+                <div style="margin-bottom: 25px;">
+                    <h3>4. Grammar Checking & Syntax Diagnostics</h3>
+                    <div id="grammarIssuesList"></div>
+                </div>
+
+                <!-- 5. Pronunciation Evaluation -->
+                <div style="margin-bottom: 25px;">
+                    <h3>5. Pronunciation Evaluation</h3>
+                    <p style="font-size: 15px;">Clarity Rating: <strong id="pronRatingVal" style="color: var(--primary);">-</strong></p>
+                    <p id="pronFeedback" style="color: var(--text-secondary); font-size: 14px;"></p>
+                </div>
+
+                <!-- 6. Emotion Detection & Eye Tracking Dashboard -->
+                <div style="margin-bottom: 30px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: var(--radius-md); padding: 25px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                        <h3 style="margin: 0; color: #0f172a; font-size: 20px;">6. Emotion Detection & Eye Tracking Assessment</h3>
+                        <span class="badge badge-blue" style="font-size: 13px;">AI Computer Vision Telemetry</span>
+                    </div>
+
+                    <!-- 6 Feature Sub-Cards Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 25px;">
+                        <!-- Feature 1: Confidence Analysis -->
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                            <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Confidence Analysis</div>
+                            <div style="font-size: 28px; font-weight: 800; color: #2563eb; margin: 6px 0;" id="reportConfidenceScore">0%</div>
+                            <p style="font-size: 12px; color: #64748b; margin: 0;" id="reportConfidenceSub">Postural & composure index</p>
+                        </div>
+
+                        <!-- Feature 2: Emotion Recognition -->
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                            <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Emotion Recognition</div>
+                            <div style="font-size: 22px; font-weight: 800; color: #059669; margin: 6px 0;" id="reportDominantEmotion">Neutral</div>
+                            <p style="font-size: 12px; color: #64748b; margin: 0;" id="reportEmotionSub">Primary facial sentiment</p>
+                        </div>
+
+                        <!-- Feature 3: Eye-Contact Tracking -->
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                            <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Eye-Contact Tracking</div>
+                            <div style="font-size: 28px; font-weight: 800; color: #10b981; margin: 6px 0;" id="reportEyeContactPct">0%</div>
+                            <p style="font-size: 12px; color: #64748b; margin: 0;" id="reportEyeContactSub">Camera lens alignment ratio</p>
+                        </div>
+
+                        <!-- Feature 4: Attention Monitoring -->
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                            <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Attention Monitoring</div>
+                            <div style="font-size: 28px; font-weight: 800; color: #8b5cf6; margin: 6px 0;" id="reportAttentionScore">0%</div>
+                            <p style="font-size: 12px; color: #64748b; margin: 0;" id="reportAttentionSub">Focus & head pose stability</p>
+                        </div>
+
+                        <!-- Feature 5: Engagement Measurement -->
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                            <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Engagement Measurement</div>
+                            <div style="font-size: 28px; font-weight: 800; color: #ea580c; margin: 6px 0;" id="reportEngagementScore">0/100</div>
+                            <p style="font-size: 12px; color: #64748b; margin: 0;" id="reportEngagementSub">Interactive micro-expression index</p>
+                        </div>
+
+                        <!-- Feature 6: Off-Screen Distractions -->
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                            <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Distraction Events</div>
+                            <div style="font-size: 28px; font-weight: 800; color: #ef4444; margin: 6px 0;" id="reportDistractionEvents">0</div>
+                            <p style="font-size: 12px; color: #64748b; margin: 0;">Off-screen gaze shift alerts (>3s)</p>
+                        </div>
+                    </div>
+
+                    <!-- Emotion Distribution Bars -->
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <h4 style="margin-top: 0; font-size: 15px; color: #1e293b;">Facial Emotion Frequency Breakdown</h4>
+                        <div id="emotionDistributionContainer" style="display: flex; flex-direction: column; gap: 10px;">
+                            <!-- Dynamically injected bars -->
+                        </div>
+                    </div>
+
+                    <!-- Feature 6: Executive Behavioral Analysis Synthesis -->
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 20px;">
+                        <h4 style="margin-top: 0; font-size: 15px; color: #1e40af; display: flex; align-items: center; gap: 8px;">
+                            🧠 Section 6 Executive Behavioral Analysis & Hiring Advice
+                        </h4>
+                        <p id="reportBehaviorSummaryText" style="font-size: 14px; color: #1e3a8a; line-height: 1.6; margin-bottom: 12px;">
+                            Analysis pending session data...
+                        </p>
+                        <div id="reportBehaviorBadges" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <span class="badge badge-green">High Composure</span>
+                            <span class="badge badge-blue">Direct Eye Alignment</span>
+                            <span class="badge badge-yellow">Stable Head Pose</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. AI Feedback & Scoring Dashboard -->
+                <div style="margin-bottom: 30px; background: #faf5ff; border: 1px solid #e9d5ff; border-radius: var(--radius-md); padding: 25px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #f3e8ff; padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <h3 style="margin: 0; color: #581c87; font-size: 20px;">7. AI Feedback & Scoring Assessment</h3>
+                            <p style="margin: 4px 0 0 0; font-size: 13px; color: #7e22ce;">Multi-parameter candidate evaluation formula & structured AI insights</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 12px; font-weight: 700; color: #6b21a8; text-transform: uppercase;">Rubric Rating:</span>
+                            <span id="section7PerformanceRatingBadge" class="badge" style="background: #10b981; color: white; font-size: 14px; padding: 6px 14px; border-radius: 20px;">EXCELLENT (92.5)</span>
+                        </div>
+                    </div>
+
+                    <!-- Formula Banner -->
+                    <div style="background: #ffffff; border: 1px solid #d8b4fe; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 13px; color: #581c87; font-weight: 600; line-height: 1.6;">
+                        📐 <strong>Overall Weighted Score Formula:</strong><br>
+                        <code style="background: #f3e8ff; padding: 3px 8px; border-radius: 4px; color: #6b21a8; font-size: 13px;">Overall Score = (Communication × 30%) + (Confidence × 25%) + (Technical Relevance × 30%) + (Professionalism × 15%)</code>
+                    </div>
+
+                    <!-- 4 Score Parameters Cards Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 25px;">
+                        <!-- 1. Communication Score (30%) -->
+                        <div style="background: #ffffff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <div style="font-size: 11px; font-weight: 800; color: #7e22ce; text-transform: uppercase;">Communication (30%)</div>
+                            <div style="font-size: 26px; font-weight: 800; color: #2563eb; margin: 4px 0;" id="sec7CommScoreVal">90.0%</div>
+                            <p style="font-size: 11px; color: #6b7280; margin: 0;">Clarity, grammar, pace, filler ratio</p>
+                        </div>
+
+                        <!-- 2. Confidence Score (25%) -->
+                        <div style="background: #ffffff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <div style="font-size: 11px; font-weight: 800; color: #7e22ce; text-transform: uppercase;">Confidence (25%)</div>
+                            <div style="font-size: 26px; font-weight: 800; color: #10b981; margin: 4px 0;" id="sec7ConfScoreVal">92.0%</div>
+                            <p style="font-size: 11px; color: #6b7280; margin: 0;">Eye contact, engagement, posture</p>
+                        </div>
+
+                        <!-- 3. Technical Relevance Score (30%) -->
+                        <div style="background: #ffffff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <div style="font-size: 11px; font-weight: 800; color: #7e22ce; text-transform: uppercase;">Technical Relevance (30%)</div>
+                            <div style="font-size: 26px; font-weight: 800; color: #8b5cf6; margin: 4px 0;" id="sec7TechScoreVal">88.5%</div>
+                            <p style="font-size: 11px; color: #6b7280; margin: 0;">Accuracy, keywords, problem solving</p>
+                        </div>
+
+                        <!-- 4. Professionalism Score (15%) -->
+                        <div style="background: #ffffff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                            <div style="font-size: 11px; font-weight: 800; color: #7e22ce; text-transform: uppercase;">Professionalism (15%)</div>
+                            <div style="font-size: 26px; font-weight: 800; color: #ea580c; margin: 4px 0;" id="sec7ProfScoreVal">91.0%</div>
+                            <p style="font-size: 11px; color: #6b7280; margin: 0;">Timing, organization, etiquette</p>
+                        </div>
+                    </div>
+
+                    <!-- 5 Structured AI Feedback Cards Grid -->
+                    <h4 style="color: #581c87; margin-bottom: 15px; font-size: 16px;">🤖 Automated AI Candidate Feedback & Recommendations</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                        
+                        <!-- Strengths Card -->
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px; border-radius: 12px;">
+                            <h5 style="color: #166534; margin: 0 0 10px 0; font-size: 14px;">🌟 Candidate Strengths</h5>
+                            <ul id="sec7StrengthsList" style="padding-left: 18px; color: #14532d; font-size: 13px; margin: 0;"></ul>
+                        </div>
+
+                        <!-- Weaknesses Card -->
+                        <div style="background: #fff7ed; border: 1px solid #fed7aa; padding: 16px; border-radius: 12px;">
+                            <h5 style="color: #c2410c; margin: 0 0 10px 0; font-size: 14px;">⚠️ Areas of Weakness</h5>
+                            <ul id="sec7WeaknessesList" style="padding-left: 18px; color: #7c2d12; font-size: 13px; margin: 0;"></ul>
+                        </div>
+
+                        <!-- Improvement Suggestions Card -->
+                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 16px; border-radius: 12px;">
+                            <h5 style="color: #1d4ed8; margin: 0 0 10px 0; font-size: 14px;">🎯 Improvement Suggestions</h5>
+                            <ul id="sec7ImprovementsList" style="padding-left: 18px; color: #1e3a8a; font-size: 13px; margin: 0;"></ul>
+                        </div>
+
+                        <!-- Practice Recommendations Card -->
+                        <div style="background: #faf5ff; border: 1px solid #e9d5ff; padding: 16px; border-radius: 12px;">
+                            <h5 style="color: #7e22ce; margin: 0 0 10px 0; font-size: 14px;">🚀 Practice Recommendations</h5>
+                            <ul id="sec7PracticeList" style="padding-left: 18px; color: #581c87; font-size: 13px; margin: 0;"></ul>
+                        </div>
+
+                        <!-- Learning Resources Card -->
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 16px; border-radius: 12px;">
+                            <h5 style="color: #334155; margin: 0 0 10px 0; font-size: 14px;">📚 Recommended Learning Resources</h5>
+                            <ul id="sec7ResourcesList" style="padding-left: 18px; color: #1e293b; font-size: 13px; margin: 0;"></ul>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Highlighted Transcript -->
+                <div style="margin-bottom: 25px;">
+                    <h3>Annotated Transcript View</h3>
+                    <div id="annotatedTranscriptView"></div>
+                </div>
+
+                <!-- Strengths & Improvement Cards -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div style="background: var(--success-light); border: 1px solid #bbf7d0; padding: 20px; border-radius: var(--radius-md);">
+                        <h4 style="color: #166534; margin-bottom: 12px;">🌟 Candidate Strengths Summary</h4>
+                        <ul id="strengthsList" style="padding-left: 20px; color: #14532d; font-size: 14px;"></ul>
+                    </div>
+                    <div style="background: var(--primary-light); border: 1px solid #bfdbfe; padding: 20px; border-radius: var(--radius-md);">
+                        <h4 style="color: #1e40af; margin-bottom: 12px;">🎯 Areas for Improvement Summary</h4>
+                        <ul id="improvementsList" style="padding-left: 20px; color: #1e3a8a; font-size: 14px;"></ul>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="toast.js"></script>
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            initSession();
+        });
+    </script>
+</body>
+</html>

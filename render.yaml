@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: smart-hire-ai
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn APP.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///./smart_hire.db
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256

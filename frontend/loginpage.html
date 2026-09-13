@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Smart Hire AI Enterprise Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .split-auth-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: calc(100vh - 70px);
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: center;
+            gap: 40px;
+            padding: 30px 20px;
+        }
+
+        .auth-banner-side {
+            background: linear-gradient(135deg, #0b0f19 0%, #1e1b4b 100%);
+            border-radius: 24px;
+            padding: 50px 40px;
+            color: white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 540px;
+        }
+
+        .auth-card-side {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 45px 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .role-pill-selector {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            gap: 4px;
+        }
+
+        .role-pill-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .role-pill-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .demo-accounts-bar {
+            background: #f8fafc;
+            border: 1px dashed var(--border-color);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .split-auth-container {
+                grid-template-columns: 1fr;
+            }
+            .auth-banner-side {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Professional Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="logo-icon">SH</div>
+            <span>Smart Hire AI</span>
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="aimockinterview.html">AI Studio</a></li>
+            <li><a href="register.html">Register</a></li>
+        </ul>
+    </nav>
+
+    <!-- Split-Screen Auth Layout -->
+    <div class="split-auth-container">
+        
+        <!-- Left Branding Banner Side -->
+        <div class="auth-banner-side">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 30px;">
+                    <div class="logo-icon" style="width: 42px; height: 42px; font-size: 20px;">SH</div>
+                    <span style="font-size: 22px; font-weight: 800; color: white;">Smart Hire AI</span>
+                </div>
+
+                <span class="badge badge-blue" style="background: rgba(37, 99, 235, 0.25); color: #60a5fa; margin-bottom: 15px;">
+                    ENTERPRISE AI PORTAL
+                </span>
+
+                <h1 style="color: white; font-size: 32px; margin-bottom: 15px; line-height: 1.25;">
+                    Autonomous Candidate Speech & Video Evaluation
+                </h1>
+
+                <p style="color: #94a3b8; font-size: 15px; line-height: 1.6; margin-bottom: 30px;">
+                    Welcome to Smart Hire AI. Sign in to access your interview session studio, view quality index reports, and manage applicant video archives.
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #cbd5e1;">
+                    <div>🔒 <strong>Enterprise Authentication:</strong> Token & Role-based security.</div>
+                    <div>📹 <strong>Live Session Suite:</strong> HD Webcam recording & real-time timers.</div>
+                    <div>📊 <strong>Recruiter Vault:</strong> Automated Quality Index reports & video archive.</div>
+                </div>
+            </div>
+
+            <!-- Customer Testimonial Quote Badge -->
+            <div style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); padding: 18px; border-radius: 12px; font-size: 13px; color: #e2e8f0; margin-top: 30px;">
+                "Smart Hire AI transformed our recruitment workflow—reducing candidate screening time by 75% with instant video & speech quality reports."
+                <div style="font-weight: 700; color: #38bdf8; margin-top: 6px;">— VP of Talent Acquisition</div>
+            </div>
+        </div>
+
+        <!-- Right Auth Form Card Side -->
+        <div class="auth-card-side">
+            
+            <div style="margin-bottom: 25px; text-align: center;">
+                <h2>Sign In to Smart Hire</h2>
+                <p style="color: var(--text-muted); font-size: 14px;">Select your account role and enter credentials</p>
+            </div>
+
+            <!-- Visual Role Selector Tabs -->
+            <div class="role-pill-selector">
+                <button type="button" class="role-pill-btn active" id="btnRoleCandidate" onclick="selectRoleTab('candidate')">
+                    👨‍🎓 Candidate
+                </button>
+                <button type="button" class="role-pill-btn" id="btnRoleRecruiter" onclick="selectRoleTab('recruiter')">
+                    👔 Recruiter
+                </button>
+                <button type="button" class="role-pill-btn" id="btnRoleAdmin" onclick="selectRoleTab('admin')">
+                    ⚙️ Admin
+                </button>
+            </div>
+
+            <!-- Hidden Role Input to keep JS handler compatibility -->
+            <select id="loginRole" style="display: none;">
+                <option value="candidate" selected>Candidate</option>
+                <option value="recruiter">Recruiter</option>
+                <option value="admin">Admin</option>
+            </select>
+
+            <!-- Form Controls -->
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="loginEmail" class="form-control" placeholder="candidate@smarthire.ai">
+            </div>
+
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label class="form-label" style="margin-bottom: 0;">Password</label>
+                    <a href="javascript:void(0)" onclick="alert('Password reset link has been sent to your email.')" style="font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 600;">Forgot Password?</a>
+                </div>
+                <input type="password" id="loginPassword" class="form-control" placeholder="••••••••">
+            </div>
+
+            <button onclick="handleLogin()" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 15px; margin-top: 10px;">
+                Sign In to Portal ➔
+            </button>
+
+            <p id="message" style="margin-top: 15px; font-weight: 600; text-align: center; color: var(--danger);"></p>
+
+            <!-- 1-Click Demo Login Shortcuts -->
+            <div class="demo-accounts-bar">
+                <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px;">
+                    ⚡ 1-Click Demo Quick Logins
+                </span>
+                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                    <button type="button" onclick="fillDemoLogin('candidate')" class="btn btn-secondary" style="font-size: 12px; padding: 5px 10px;">
+                        Candidate Demo
+                    </button>
+                    <button type="button" onclick="fillDemoLogin('recruiter')" class="btn btn-secondary" style="font-size: 12px; padding: 5px 10px;">
+                        Recruiter Demo
+                    </button>
+                    <button type="button" onclick="fillDemoLogin('admin')" class="btn btn-secondary" style="font-size: 12px; padding: 5px 10px;">
+                        Admin Demo
+                    </button>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 25px; font-size: 14px; color: var(--text-secondary);">
+                Don't have an account? <a href="register.html" style="color: var(--primary); font-weight: 700; text-decoration: none;">Register Here</a>
+            </p>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function selectRoleTab(role) {
+            document.getElementById("loginRole").value = role;
+            document.querySelectorAll('.role-pill-btn').forEach(b => b.classList.remove('active'));
+            if (role === 'candidate') document.getElementById('btnRoleCandidate').classList.add('active');
+            if (role === 'recruiter') document.getElementById('btnRoleRecruiter').classList.add('active');
+            if (role === 'admin') document.getElementById('btnRoleAdmin').classList.add('active');
+
+            // Fill default placeholder or demo
+            if (role === 'candidate') document.getElementById("loginEmail").placeholder = "candidate@smarthire.ai";
+            if (role === 'recruiter') document.getElementById("loginEmail").placeholder = "recruiter@smarthire.ai";
+            if (role === 'admin') document.getElementById("loginEmail").placeholder = "admin@smarthire.ai";
+        }
+    </script>
+</body>
+</html>

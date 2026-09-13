@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Jobs - Smart Hire AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="logo-icon">SH</div>
+            <span>Smart Hire AI</span>
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="candidate.html">Candidate Dashboard</a></li>
+            <li><a href="aimockinterview.html">AI Mock Interview</a></li>
+            <li><a href="jobs.html" class="active">Available Jobs</a></li>
+        </ul>
+    </nav>
+
+    <div class="app-container">
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Available Job Opportunities</h2>
+                <span class="badge badge-blue">3 Active Openings</span>
+            </div>
+
+            <div class="grid-3">
+                <div class="metric-card">
+                    <h3>Software Engineer</h3>
+                    <p style="font-size: 14px;">Full-time • Remote / Hybrid</p>
+                    <span class="badge badge-green" style="margin-bottom: 15px;">Active Listing</span>
+                    <br><br>
+                    <button onclick="alert('Applied to Software Engineer position!')" class="btn btn-primary" style="width:100%;">Apply Now</button>
+                </div>
+
+                <div class="metric-card">
+                    <h3>AI / ML Engineer</h3>
+                    <p style="font-size: 14px;">Full-time • San Francisco, CA</p>
+                    <span class="badge badge-green" style="margin-bottom: 15px;">Active Listing</span>
+                    <br><br>
+                    <button onclick="alert('Applied to AI / ML Engineer position!')" class="btn btn-primary" style="width:100%;">Apply Now</button>
+                </div>
+
+                <div class="metric-card">
+                    <h3>Full-Stack Web Developer</h3>
+                    <p style="font-size: 14px;">Full-time • New York, NY</p>
+                    <span class="badge badge-green" style="margin-bottom: 15px;">Active Listing</span>
+                    <br><br>
+                    <button onclick="alert('Applied to Web Developer position!')" class="btn btn-primary" style="width:100%;">Apply Now</button>
+                </div>
+            </div>
+
+            <br>
+            <button onclick="window.location.href='candidate.html'" class="btn btn-secondary">
+                ⬅️ Back to Candidate Dashboard
+            </button>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Reports Vault - Smart Hire AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="logo-icon">SH</div>
+            <span>Smart Hire AI</span>
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="admin.html">Admin Console</a></li>
+            <li><a href="recruiter.html">Recruiter Dashboard</a></li>
+            <li><a href="view_reports.html" class="active">Reports Vault</a></li>
+        </ul>
+    </nav>
+
+    <div class="app-container">
+        
+        <div class="card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white;">
+            <span class="badge badge-blue" style="margin-bottom: 10px;">Executive Vault</span>
+            <h1 style="color: white; margin-bottom: 5px;">Recruiter Interview Reports & Video Archive</h1>
+            <p style="color: #94a3b8;">Review candidate interview sessions, overall quality scores, grades, and watch video recordings.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Completed Interview Sessions</h2>
+                <button onclick="loadRecruiterVault()" class="btn btn-secondary" style="font-size: 13px; padding: 6px 14px;">🔄 Refresh Vault</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="vault-table">
+                    <thead>
+                        <tr>
+                            <th>Candidate / Session ID</th>
+                            <th>Session Status</th>
+                            <th>Total Duration</th>
+                            <th>Section 7 Performance Rating</th>
+                            <th>Section 7 Weighted Formula Breakdown</th>
+                            <th>Section 6 Telemetry</th>
+                            <th>Video Recording Playback</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recruiterVaultTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding: 25px; color: var(--text-muted);">Loading interview sessions from database...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <br><br>
+            <div style="text-align: center;">
+                <button onclick="window.location.href='recruiter.html'" class="btn btn-secondary">
+                    ⬅️ Back to Recruiter Dashboard
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            loadRecruiterVault();
+        });
+    </script>
+</body>
+</html>

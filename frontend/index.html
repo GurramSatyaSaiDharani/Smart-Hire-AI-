@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Hire AI - Autonomous AI Recruitment & Speech Intelligence</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Landing Page Specific High-Impact Hero Styles */
+        .hero-section {
+            background: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #1e1b4b 100%);
+            color: #ffffff;
+            padding: 70px 40px;
+            border-radius: 24px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(37,99,235,0.3) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(37, 99, 235, 0.18);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #60a5fa;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-title {
+            font-size: 46px;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: #94a3b8;
+            max-width: 760px;
+            margin: 0 auto 35px auto;
+            line-height: 1.6;
+        }
+
+        .hero-cta-group {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 45px;
+        }
+
+        /* Mockup Preview Card */
+        .product-mockup-card {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: left;
+        }
+
+        .mockup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .mockup-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .mockup-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .stats-grid-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-box .num {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-box .lbl {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .step-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            text-align: left;
+            position: relative;
+        }
+
+        .step-num {
+            width: 36px;
+            height: 36px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .portal-card {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        footer {
+            border-top: 1px solid var(--border-color);
+            background: #ffffff;
+            padding: 35px 0;
+            margin-top: 60px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Glassmorphic Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="logo-icon">SH</div>
+            <span>Smart Hire AI</span>
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#portals">Role Portals</a></li>
+            <li><a href="aimockinterview.html">AI Studio</a></li>
+            <li><a href="view_reports.html">Reports Vault</a></li>
+            <li><a href="loginpage.html">Sign In</a></li>
+            <li><a href="register.html" class="btn btn-primary" style="color: white; padding: 7px 18px;">Get Started Free</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="app-container" style="max-width: 1140px;">
+        
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-badge">
+                <span>⚡ POWERED BY AI EMOTION & EYE-TRACKING INTELLIGENCE 2.0</span>
+            </div>
+
+            <h1 class="hero-title">
+                Next-Gen Candidate Screening with AI Emotion, Eye-Tracking & Speech Intelligence
+            </h1>
+
+            <p class="hero-subtitle">
+                Transform candidate interviews with real-time computer vision emotion recognition, eye-contact ratio tracking, attention focus monitoring, real-time speech transcription, WPM pace analysis, and executive behavioral reports.
+            </p>
+
+            <div class="hero-cta-group">
+                <a href="aimockinterview.html" class="btn btn-primary" style="font-size: 16px; padding: 14px 30px; border-radius: 12px;">
+                    🎙️ Launch AI Mock Studio
+                </a>
+                <a href="view_reports.html" class="btn btn-secondary" style="font-size: 16px; padding: 14px 30px; background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2); border-radius: 12px;">
+                    📊 View Recruiter Reports Vault
+                </a>
+            </div>
+
+            <!-- Interactive Product Mockup Preview Box -->
+            <div class="product-mockup-card">
+                <div class="mockup-header">
+                    <div class="mockup-dots">
+                        <div class="mockup-dot" style="background:#ef4444;"></div>
+                        <div class="mockup-dot" style="background:#f59e0b;"></div>
+                        <div class="mockup-dot" style="background:#10b981;"></div>
+                    </div>
+                    <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">LIVE SESSION • EMOTION & EYE TRACKING HUD ACTIVE</span>
+                    <span class="badge badge-green" style="font-size: 11px;">🟢 RECORDING & AI COMPUTER VISION ACTIVE</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px;">
+                    <!-- Webcam Stream Frame Mockup with HUD Overlay -->
+                    <div style="background: #0f172a; height: 180px; border-radius: 10px; position: relative; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.15); overflow: hidden;">
+                        <!-- Reticle overlay mockup -->
+                        <div style="position: absolute; width: 120px; height: 120px; border: 2px dashed #10b981; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div>
+                        </div>
+                        <div style="position: absolute; bottom: 8px; left: 8px; right: 8px; display: flex; justify-content: space-between; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); padding: 4px 10px; border-radius: 6px; font-size: 11px; color: white;">
+                            <span>😊 Mood: Focused (92%)</span>
+                            <span>👁️ Eye Contact: Direct (96%)</span>
+                        </div>
+                    </div>
+
+                    <!-- Live Section 6 Quality Index Card Mockup -->
+                    <div style="background: #0f172a; padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 11px; font-weight: 700; color: #94a3b8;">SECTION 6 TELEMETRY</span>
+                            <span style="font-size: 13px; font-weight: 900; color: #38bdf8;">GRADE A+</span>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 800; color: #ffffff;">95.5<span style="font-size: 14px; color: #64748b;">/100</span></div>
+                        <div style="margin-top: 8px; font-size: 12px; color: #cbd5e1; line-height: 1.5;">
+                            ✓ Confidence Rating: <strong>95%</strong><br>
+                            ✓ Eye-Contact Ratio: <strong>96% Direct</strong><br>
+                            ✓ Focus Attention: <strong>98% (0 Distractions)</strong><br>
+                            ✓ Engagement Index: <strong>94/100</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Bar -->
+        <div class="stats-grid-row">
+            <div class="stat-box">
+                <div class="num">99.4%</div>
+                <div class="lbl">Speech Accuracy</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">12,500+</div>
+                <div class="lbl">AI Interviews Conducted</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">&lt; 30s</div>
+                <div class="lbl">Report Generation</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">4.5x</div>
+                <div class="lbl">Faster Candidate Screening</div>
+            </div>
+        </div>
+
+        <!-- Feature Deep-Dive Grid -->
+        <section id="features" style="margin: 60px 0;">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <span class="badge badge-blue" style="margin-bottom: 10px;">ENTERPRISE AI PLATFORM</span>
+                <h2>Comprehensive Speech, Video & Behavioral AI Engine</h2>
+                <p style="max-width: 600px; margin: 0 auto; color: var(--text-secondary);">Everything you need to conduct automated, candidate-friendly AI interview evaluations with behavioral telemetry.</p>
+            </div>
+
+            <div class="grid-3">
+                <div class="metric-card" style="border-top: 4px solid #2563eb;">
+                    <div style="font-size: 32px; margin-bottom: 12px;">🧠</div>
+                    <h3>6. Emotion Detection & Eye Tracking</h3>
+                    <p>Computer vision telemetry analyzing candidate confidence posture, facial sentiment breakdown, eye-contact ratio %, attention focus, engagement index, and behavioral summaries.</p>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 32px; margin-bottom: 12px;">🎙️</div>
+                    <h3>Real-Time Speech Transcription</h3>
+                    <p>Captures candidate spoken responses live using Web Speech API with streaming text output and audio spectrum waveform visualizers.</p>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 32px; margin-bottom: 12px;">📝</div>
+                    <h3>Grammar & Syntax Diagnostics</h3>
+                    <p>Identifies subject-verb agreement issues, verb tense inconsistencies, offering instant corrections and grammar accuracy scores.</p>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 32px; margin-bottom: 12px;">📊</div>
+                    <h3>Filler-Word & Pace Optimization</h3>
+                    <p>Detects filler words ("um", "like", "basically") and measures Words Per Minute (WPM) to classify delivery speed (Too Slow / Optimal / Too Fast).</p>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 32px; margin-bottom: 12px;">📹</div>
+                    <h3>MediaRecorder Video Vault</h3>
+                    <p>Records candidate webcam and microphone streams into HD `.webm` video files, auto-uploaded to backend server for recruiter playback.</p>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 32px; margin-bottom: 12px;">👥</div>
+                    <h3>Executive Recruiter Vault</h3>
+                    <p>Tailored dashboards for Candidates (AI Studio), Recruiters (applicant score roster & video playback vault), and System Administrators.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" style="margin: 60px 0; background: #ffffff; padding: 45px; border-radius: 20px; border: 1px solid var(--border-color);">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <span class="badge badge-green" style="margin-bottom: 10px;">AUTOMATED WORKFLOW</span>
+                <h2>How Smart Hire AI Works</h2>
+                <p>3 simple steps from candidate recording to recruiter report.</p>
+            </div>
+
+            <div class="grid-3">
+                <div class="step-card">
+                    <div class="step-num">1</div>
+                    <h3>Launch Interview Session</h3>
+                    <p>Candidate starts session with live webcam & microphone stream preview. Timers track total duration, per-question time, and 5-minute countdown.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-num">2</div>
+                    <h3>Real-Time Speech & Video Engine</h3>
+                    <p>As the candidate answers, speech recognition transcribes responses, tracks fillers, calculates WPM, checks grammar, and records video.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-num">3</div>
+                    <h3>Instant Report & Recruiter Vault</h3>
+                    <p>Candidate receives full Quality Index (0-100) and Grade. Recruiter accesses the session, score breakdown, and playable video recording in the Reports Vault.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Role Portals Section -->
+        <section id="portals" style="margin: 60px 0;">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <span class="badge badge-yellow" style="margin-bottom: 10px;">WORKSPACE PORTALS</span>
+                <h2>Access Role-Based Dashboards</h2>
+            </div>
+
+            <div class="grid-3">
+                <div class="portal-card">
+                    <span class="badge badge-blue" style="margin-bottom: 12px;">For Candidates</span>
+                    <h3>Candidate Dashboard</h3>
+                    <p>Practice AI Mock Interviews, track communication scores, upload resumes, and view open position listings.</p>
+                    <a href="candidate.html" class="btn btn-primary" style="margin-top: 15px; width: 100%;">Enter Candidate Portal</a>
+                </div>
+
+                <div class="portal-card">
+                    <span class="badge badge-green" style="margin-bottom: 12px;">For Recruiters</span>
+                    <h3>Recruiter Command Center</h3>
+                    <p>Post new job listings, review candidate score rosters, watch recorded video responses, and schedule interviews.</p>
+                    <a href="recruiter.html" class="btn btn-primary" style="margin-top: 15px; width: 100%;">Enter Recruiter Portal</a>
+                </div>
+
+                <div class="portal-card">
+                    <span class="badge badge-yellow" style="margin-bottom: 12px;">For System Admins</span>
+                    <h3>Admin Console</h3>
+                    <p>System user administration, recruiter management, platform analytics, and infrastructure oversight.</p>
+                    <a href="admin.html" class="btn btn-primary" style="margin-top: 15px; width: 100%;">Enter Admin Console</a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Modern Footer -->
+    <footer>
+        <div class="app-container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin: 0 auto;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="logo-icon" style="width: 28px; height: 28px; font-size: 14px;">SH</div>
+                <strong style="color: var(--text-primary);">Smart Hire AI System</strong>
+            </div>
+            <div>
+                © 2026 Smart Hire AI. All rights reserved.
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
+                <span style="font-size: 13px; color: var(--text-muted);">All Systems Operational</span>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
