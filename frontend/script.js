@@ -1727,8 +1727,14 @@ async function loadRecruiterDashboardData() {
                     ]
                 },
                 upcoming_interviews: [
-                    { candidate_name: "Satya Sai Dharani", title: "AI Engineering Assessment", datetime: "Tomorrow at 10:00 AM", status: "Scheduled" },
-                    { candidate_name: "Rahul Verma", title: "Backend Systems Screening", datetime: "Tomorrow at 02:00 PM", status: "Scheduled" }
+                    { candidate_name: "Satya Sai Dharani", title: "AI Engineering Assessment", date: "Tomorrow", time: "10:00 AM", status: "Scheduled" },
+                    { candidate_name: "Rahul Verma", title: "Backend Systems Screening", date: "Tomorrow", time: "02:00 PM", status: "Scheduled" },
+                    { candidate_name: "Ananya Sharma", title: "Full-Stack Mock Review", date: "Friday", time: "11:30 AM", status: "Scheduled" }
+                ],
+                recent_interviews: [
+                    { candidate_name: "Satya Sai Dharani", session_id: "SESSION_FULL_1", overall_score: 92, grade: "Excellent (A+)", date: "2026-09-12", video_url: "" },
+                    { candidate_name: "Rahul Verma", session_id: "SESSION_FULL_2", overall_score: 88, grade: "Excellent (A)", date: "2026-09-11", video_url: "" },
+                    { candidate_name: "Ananya Sharma", session_id: "SESSION_FULL_3", overall_score: 85, grade: "Good (B+)", date: "2026-09-10", video_url: "" }
                 ]
             };
         }
@@ -1934,7 +1940,13 @@ async function loadAdminDashboardData() {
                 total_candidates: 85,
                 total_recruiters: 35,
                 completed_interviews: 64,
-                average_performance: 86.2
+                average_performance: 86.2,
+                top_candidates: [
+                    { rank: 1, candidate_name: "Satya Sai Dharani", overall_score: 92, overall_grade: "Excellent (A+)", communication_score: 95, confidence_score: 90, technical_score: 92, professionalism_score: 94 },
+                    { rank: 2, candidate_name: "Rahul Verma", overall_score: 88, overall_grade: "Excellent (A)", communication_score: 90, confidence_score: 88, technical_score: 86, professionalism_score: 90 },
+                    { rank: 3, candidate_name: "Ananya Sharma", overall_score: 85, overall_grade: "Good (B+)", communication_score: 88, confidence_score: 84, technical_score: 85, professionalism_score: 88 },
+                    { rank: 4, candidate_name: "Vikram Patel", overall_score: 82, overall_grade: "Good (B)", communication_score: 84, confidence_score: 80, technical_score: 82, professionalism_score: 85 }
+                ]
             };
         }
 
