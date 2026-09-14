@@ -2745,86 +2745,155 @@ function loadAdminActivityFeed() {
     `).join("");
 }
 
+let currentAnalyticsView = 'daily';
+let platformTrendsChartInstance = null;
+
+function switchAnalyticsView(mode) {
+    currentAnalyticsView = mode;
+    const btnDaily = document.getElementById("btnAnalyticsDaily");
+    const btnMonthly = document.getElementById("btnAnalyticsMonthly");
+
+    if (mode === 'daily') {
+        if (btnDaily) { btnDaily.className = "btn btn-primary"; }
+        if (btnMonthly) { btnMonthly.className = "btn btn-secondary"; }
+    } else {
+        if (btnDaily) { btnDaily.className = "btn btn-secondary"; }
+        if (btnMonthly) { btnMonthly.className = "btn btn-primary"; }
+    }
+    renderAdminUsageChart();
+}
+
 async function renderAdminUsageChart() {
-    const canvas = document.getElementById("platformUsageChart");
-    if (!canvas || typeof Chart === "undefined") return;
+    const canvasUsage = document.getElementById("platformUsageChart");
+    const canvasTrends = document.getElementById("platformTrendsChart");
+    if (typeof Chart === "undefined") return;
 
     let chartData = null;
     try {
-        const res = await fetch(API + "/api/analytics/usage");
+        const res = await fetch(API + `/api/analytics/usage?view=${currentAnalyticsView}`);
         if (res.ok) {
             chartData = await res.json();
         }
     } catch(e) {}
 
     if (!chartData) {
-        chartData = {
-            labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-            completed_interviews: [18, 24, 21, 29, 35, 22, 16],
-            candidate_registrations: [8, 12, 10, 15, 18, 9, 6],
-            proctoring_alerts: [2, 4, 1, 3, 5, 2, 1]
-        };
+        if (currentAnalyticsView === 'daily') {
+            chartData = {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                completed: [42, 58, 52, 68, 85, 48, 34],
+                scheduled: [48, 62, 55, 72, 90, 50, 38],
+                active_users: [110, 145, 132, 168, 195, 125, 95],
+                completion_rate: [87.5, 93.5, 94.5, 94.4, 94.4, 96.0, 89.4]
+            };
+        } else {
+            chartData = {
+                labels: ['Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026', 'Aug 2026', 'Sep 2026'],
+                completed: [145, 180, 210, 260, 310, 380],
+                scheduled: [160, 195, 225, 275, 330, 400],
+                active_users: [320, 410, 520, 640, 750, 845],
+                completion_rate: [90.6, 92.3, 93.3, 94.5, 93.9, 95.0]
+            };
+        }
     }
 
-    const ctx = canvas.getContext("2d");
-    if (adminUsageChartInstance) adminUsageChartInstance.destroy();
+    // Update KPI Header strip
+    const totalSessions = chartData.completed.reduce((a, b) => a + b, 0);
+    const avgCompletion = (chartData.completion_rate.reduce((a, b) => a + b, 0) / chartData.completion_rate.length).toFixed(1);
+    const latestUsers = chartData.active_users[chartData.active_users.length - 1];
 
-    adminUsageChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: chartData.labels,
-            datasets: [
-                {
-                    label: 'Completed AI Mock Interviews',
-                    data: chartData.completed_interviews,
-                    backgroundColor: '#2563eb',
-                    borderRadius: 6,
-                    borderWidth: 0
-                },
-                {
-                    label: 'Candidate Registrations',
-                    data: chartData.candidate_registrations,
-                    backgroundColor: '#10b981',
-                    borderRadius: 6,
-                    borderWidth: 0
-                },
-                {
-                    label: 'Proctoring Telemetry Events',
-                    data: chartData.proctoring_alerts,
-                    backgroundColor: '#f59e0b',
-                    borderRadius: 6,
-                    borderWidth: 0
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: { font: { family: 'Segoe UI', size: 12 } }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y + ' sessions';
-                        }
+    const kpiTotal = document.getElementById("kpiTotalSessions");
+    const kpiCompleted = document.getElementById("kpiCompletedSessions");
+    const kpiUsers = document.getElementById("kpiActiveUsers");
+
+    if (kpiTotal) kpiTotal.innerText = totalSessions.toLocaleString() + " Sessions";
+    if (kpiCompleted) kpiCompleted.innerText = totalSessions.toLocaleString() + ` (${avgCompletion}%)`;
+    if (kpiUsers) kpiUsers.innerText = latestUsers + " Users";
+
+    // 1. Render Bar Chart (Usage Volume & Active Users)
+    if (canvasUsage) {
+        const ctxUsage = canvasUsage.getContext("2d");
+        if (adminUsageChartInstance) adminUsageChartInstance.destroy();
+
+        adminUsageChartInstance = new Chart(ctxUsage, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'Completed Sessions',
+                        data: chartData.completed,
+                        backgroundColor: '#2563eb',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Scheduled Sessions',
+                        data: chartData.scheduled,
+                        backgroundColor: '#38bdf8',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Active Users',
+                        data: chartData.active_users,
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: 6
                     }
-                }
+                ]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { display: true, text: 'Volume Count' },
-                    grid: { color: 'rgba(0,0,0,0.05)' }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { font: { family: 'Segoe UI', size: 11 } } }
                 },
-                x: {
-                    grid: { display: false }
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { grid: { display: false } }
                 }
             }
-        }
-    });
+        });
+    }
+
+    // 2. Render Line Chart (Completion Rate Trend)
+    if (canvasTrends) {
+        const ctxTrends = canvasTrends.getContext("2d");
+        if (platformTrendsChartInstance) platformTrendsChartInstance.destroy();
+
+        platformTrendsChartInstance = new Chart(ctxTrends, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'Session Completion Rate (%)',
+                        data: chartData.completion_rate,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        tension: 0.35,
+                        fill: true,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#059669',
+                        pointRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { font: { family: 'Segoe UI', size: 11 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) { return 'Completion Rate: ' + context.parsed.y + '%'; }
+                        }
+                    }
+                },
+                scales: {
+                    y: { min: 60, max: 100, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
 }
 
 

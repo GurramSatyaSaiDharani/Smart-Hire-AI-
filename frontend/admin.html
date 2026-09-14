@@ -151,11 +151,50 @@
 
         <!-- Section 10.2 Platform Usage Analytics Visualizer -->
         <div class="card">
-            <div class="card-header">
-                <h2>📊 Platform Usage Analytics & Session Volume</h2>
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h2 style="margin: 0;">📊 Platform Usage Analytics & Session Volume</h2>
+                    <p style="margin: 3px 0 0 0; font-size: 13px; color: var(--text-muted);">Tracking total sessions, completion rates, active users, and historical usage volume trends.</p>
+                </div>
+                <div class="btn-group" style="margin: 0;">
+                    <button onclick="switchAnalyticsView('daily')" id="btnAnalyticsDaily" class="btn btn-primary" style="font-size: 12px; padding: 5px 12px;">📅 Daily (7 Days)</button>
+                    <button onclick="switchAnalyticsView('monthly')" id="btnAnalyticsMonthly" class="btn btn-secondary" style="font-size: 12px; padding: 5px 12px;">📆 Monthly (6 Months)</button>
+                </div>
             </div>
-            <div style="position: relative; height: 240px; width: 100%;">
-                <canvas id="platformUsageChart"></canvas>
+
+            <!-- Analytics Key Metrics Header Strip -->
+            <div class="grid-3" style="margin-bottom: 20px;">
+                <div class="metric-card" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                    <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Session Volume</span>
+                    <div style="font-size: 24px; font-weight: 800; color: #2563eb; margin: 4px 0;" id="kpiTotalSessions">1,280 Sessions</div>
+                    <span class="badge badge-green" style="font-size: 10px;">▲ +18.4% Volume Growth</span>
+                </div>
+                <div class="metric-card" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                    <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Completed Sessions Rate</span>
+                    <div style="font-size: 24px; font-weight: 800; color: #10b981; margin: 4px 0;" id="kpiCompletedSessions">1,206 (94.2%)</div>
+                    <span class="badge badge-blue" style="font-size: 10px;">High Reliability Benchmark</span>
+                </div>
+                <div class="metric-card" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                    <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Active Monthly Users</span>
+                    <div style="font-size: 24px; font-weight: 800; color: #8b5cf6; margin: 4px 0;" id="kpiActiveUsers">845 Users</div>
+                    <span class="badge badge-yellow" style="font-size: 10px;">Candidates & Recruiters</span>
+                </div>
+            </div>
+
+            <!-- Dual Charts Visualizer Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                    <h4 style="margin: 0 0 12px 0; color: #334155; font-size: 14px;">📊 Session Volume & Active Users</h4>
+                    <div style="position: relative; height: 250px; width: 100%;">
+                        <canvas id="platformUsageChart"></canvas>
+                    </div>
+                </div>
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                    <h4 style="margin: 0 0 12px 0; color: #334155; font-size: 14px;">📈 Session Completion & Retention Trend (%)</h4>
+                    <div style="position: relative; height: 250px; width: 100%;">
+                        <canvas id="platformTrendsChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
