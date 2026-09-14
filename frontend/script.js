@@ -2207,29 +2207,23 @@ async function loadRecruiterRankings(sortBy = "overall_score") {
     }
 }
 
-async function loadAdminDashboardData() {
-    try {
-        let data;
-        try {
-            const res = await fetch(API + "/api/dashboard/admin");
-            if (res.ok) data = await res.json();
-        } catch(e) {}
-        if (!data) {
-            data = {
-                total_users: 120,
-                total_candidates: 85,
-                total_recruiters: 35,
-                completed_interviews: 64,
-                average_performance: 86.2,
-                top_candidates: [
-                    { rank: 1, candidate_name: "Satya Sai Dharani", overall_score: 92, overall_grade: "Excellent (A+)", communication_score: 95, confidence_score: 90, technical_score: 92, professionalism_score: 94 },
-                    { rank: 2, candidate_name: "Rahul Verma", overall_score: 88, overall_grade: "Excellent (A)", communication_score: 90, confidence_score: 88, technical_score: 86, professionalism_score: 90 },
-                    { rank: 3, candidate_name: "Ananya Sharma", overall_score: 85, overall_grade: "Good (B+)", communication_score: 88, confidence_score: 84, technical_score: 85, professionalism_score: 88 },
-                    { rank: 4, candidate_name: "Vikram Patel", overall_score: 82, overall_grade: "Good (B)", communication_score: 84, confidence_score: 80, technical_score: 82, professionalism_score: 85 }
-                ]
-            };
-        }
+function loadAdminDashboardData() {
+    // 1. Populate demo metrics and tables INSTANTLY (0ms delay)
+    const defaultData = {
+        total_users: 120,
+        total_candidates: 85,
+        total_recruiters: 35,
+        completed_interviews: 64,
+        average_performance: 86.2,
+        top_candidates: [
+            { rank: 1, candidate_name: "Satya Sai Dharani", overall_score: 92, overall_grade: "Excellent (A+)", communication_score: 95, confidence_score: 90, technical_score: 92, professionalism_score: 94 },
+            { rank: 2, candidate_name: "Rahul Verma", overall_score: 88, overall_grade: "Excellent (A)", communication_score: 90, confidence_score: 88, technical_score: 86, professionalism_score: 90 },
+            { rank: 3, candidate_name: "Ananya Sharma", overall_score: 85, overall_grade: "Good (B+)", communication_score: 88, confidence_score: 84, technical_score: 85, professionalism_score: 88 },
+            { rank: 4, candidate_name: "Vikram Patel", overall_score: 82, overall_grade: "Good (B)", communication_score: 84, confidence_score: 80, technical_score: 82, professionalism_score: 85 }
+        ]
+    };
 
+    const renderData = (data) => {
         const usersEl = document.getElementById("adminTotalUsers");
         const candsEl = document.getElementById("adminTotalCandidates");
         const recsEl = document.getElementById("adminTotalRecruiters");
@@ -2237,10 +2231,10 @@ async function loadAdminDashboardData() {
         const avgEl = document.getElementById("adminAvgScore");
 
         if (usersEl) usersEl.innerText = data.total_users || 120;
-        if (candsEl) candsEl.innerText = data.total_candidates || 45;
-        if (recsEl) recsEl.innerText = data.total_recruiters || 15;
-        if (compEl) compEl.innerText = data.completed_interviews || 0;
-        if (avgEl) avgEl.innerText = (data.average_performance || 85.2) + "%";
+        if (candsEl) candsEl.innerText = data.total_candidates || 85;
+        if (recsEl) recsEl.innerText = data.total_recruiters || 35;
+        if (compEl) compEl.innerText = data.completed_interviews || 64;
+        if (avgEl) avgEl.innerText = (data.average_performance || 86.2) + "%";
 
         const topTbody = document.getElementById("adminTopCandidatesTableBody");
         if (topTbody && data.top_candidates) {
@@ -2257,11 +2251,24 @@ async function loadAdminDashboardData() {
                 </tr>
             `).join("");
         }
+    };
 
-        loadAdminActivityFeed();
-        renderAdminUsageChart();
-    } catch (e) {
-        console.error("Error loading admin dashboard:", e);
+    // Render local data and charts IMMEDIATELY
+    renderData(defaultData);
+    loadAdminActivityFeed();
+    renderAdminUsageChart();
+
+    // 2. Perform background API fetch with fast timeout (non-blocking)
+    if (window.location.protocol.startsWith("http") && !window.location.hostname.includes("github.io")) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1200);
+        fetch(API + "/api/dashboard/admin", { signal: controller.signal })
+            .then(res => res.ok ? res.json() : null)
+            .then(liveData => {
+                clearTimeout(timeoutId);
+                if (liveData) renderData(liveData);
+            })
+            .catch(() => clearTimeout(timeoutId));
     }
 }
 
@@ -2763,155 +2770,166 @@ function switchAnalyticsView(mode) {
     renderAdminUsageChart();
 }
 
-async function renderAdminUsageChart() {
+function renderAdminUsageChart() {
     const canvasUsage = document.getElementById("platformUsageChart");
     const canvasTrends = document.getElementById("platformTrendsChart");
 
+    if (!canvasUsage && !canvasTrends) return;
+
     if (typeof Chart === "undefined") {
-        console.warn("Chart.js initializing, retrying renderAdminUsageChart in 200ms...");
-        setTimeout(renderAdminUsageChart, 200);
+        console.warn("Chart.js initializing, retrying renderAdminUsageChart in 150ms...");
+        setTimeout(renderAdminUsageChart, 150);
         return;
     }
 
-    let chartData = null;
-    try {
-        const res = await fetch(API + `/api/analytics/usage?view=${currentAnalyticsView}`);
-        if (res.ok) {
-            chartData = await res.json();
-        }
-    } catch(e) {}
+    // Default 6-month monthly / 7-day daily demo chart datasets
+    let defaultChartData = (currentAnalyticsView === 'daily') ? {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        completed: [42, 58, 52, 68, 85, 48, 34],
+        total_sessions: [48, 62, 55, 72, 90, 50, 38],
+        active_users: [110, 145, 132, 168, 195, 125, 95],
+        completion_rate: [87.5, 93.5, 94.5, 94.4, 94.4, 96.0, 89.4],
+        retention_rate: [82.0, 85.5, 86.2, 88.4, 91.0, 88.5, 84.0]
+    } : {
+        labels: ['Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026', 'Aug 2026', 'Sep 2026'],
+        completed: [145, 180, 210, 260, 310, 380],
+        total_sessions: [160, 195, 225, 275, 330, 400],
+        active_users: [320, 410, 520, 640, 750, 845],
+        completion_rate: [90.6, 92.3, 93.3, 94.5, 93.9, 95.0],
+        retention_rate: [84.2, 86.5, 88.0, 91.2, 92.8, 94.5]
+    };
 
-    if (!chartData) {
-        if (currentAnalyticsView === 'daily') {
-            chartData = {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                completed: [42, 58, 52, 68, 85, 48, 34],
-                total_sessions: [48, 62, 55, 72, 90, 50, 38],
-                active_users: [110, 145, 132, 168, 195, 125, 95],
-                completion_rate: [87.5, 93.5, 94.5, 94.4, 94.4, 96.0, 89.4],
-                retention_rate: [82.0, 85.5, 86.2, 88.4, 91.0, 88.5, 84.0]
-            };
-        } else {
-            chartData = {
-                labels: ['Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026', 'Aug 2026', 'Sep 2026'],
-                completed: [145, 180, 210, 260, 310, 380],
-                total_sessions: [160, 195, 225, 275, 330, 400],
-                active_users: [320, 410, 520, 640, 750, 845],
-                completion_rate: [90.6, 92.3, 93.3, 94.5, 93.9, 95.0],
-                retention_rate: [84.2, 86.5, 88.0, 91.2, 92.8, 94.5]
-            };
-        }
-    }
+    const drawCharts = (data) => {
+        const totalSessions = data.total_sessions ? data.total_sessions.reduce((a, b) => a + b, 0) : 1580;
+        const avgCompletion = (data.completion_rate.reduce((a, b) => a + b, 0) / data.completion_rate.length).toFixed(1);
+        const latestUsers = data.active_users[data.active_users.length - 1];
 
-    // Update KPI Header strip
-    const totalSessions = chartData.completed.reduce((a, b) => a + b, 0);
-    const avgCompletion = (chartData.completion_rate.reduce((a, b) => a + b, 0) / chartData.completion_rate.length).toFixed(1);
-    const latestUsers = chartData.active_users[chartData.active_users.length - 1];
+        const kpiTotal = document.getElementById("kpiTotalSessions");
+        const kpiCompleted = document.getElementById("kpiCompletedSessions");
+        const kpiUsers = document.getElementById("kpiActiveUsers");
 
-    const kpiTotal = document.getElementById("kpiTotalSessions");
-    const kpiCompleted = document.getElementById("kpiCompletedSessions");
-    const kpiUsers = document.getElementById("kpiActiveUsers");
+        if (kpiTotal) kpiTotal.innerText = totalSessions.toLocaleString() + " Sessions";
+        if (kpiCompleted) kpiCompleted.innerText = totalSessions.toLocaleString() + ` (${avgCompletion}%)`;
+        if (kpiUsers) kpiUsers.innerText = latestUsers + " Users";
 
-    if (kpiTotal) kpiTotal.innerText = totalSessions.toLocaleString() + " Sessions";
-    if (kpiCompleted) kpiCompleted.innerText = totalSessions.toLocaleString() + ` (${avgCompletion}%)`;
-    if (kpiUsers) kpiUsers.innerText = latestUsers + " Users";
+        // 1. Render Bar Chart (Session Volume & Active Users)
+        if (canvasUsage) {
+            const ctxUsage = canvasUsage.getContext("2d");
+            if (adminUsageChartInstance) adminUsageChartInstance.destroy();
 
-    // 1. Render Bar Chart (Usage Volume & Active Users)
-    if (canvasUsage) {
-        const ctxUsage = canvasUsage.getContext("2d");
-        if (adminUsageChartInstance) adminUsageChartInstance.destroy();
-
-        adminUsageChartInstance = new Chart(ctxUsage, {
-            type: 'bar',
-            data: {
-                labels: chartData.labels,
-                datasets: [
-                    {
-                        label: 'Completed Sessions',
-                        data: chartData.completed,
-                        backgroundColor: '#2563eb',
-                        borderRadius: 6
-                    },
-                    {
-                        label: 'Scheduled Sessions',
-                        data: chartData.scheduled,
-                        backgroundColor: '#38bdf8',
-                        borderRadius: 6
-                    },
-                    {
-                        label: 'Active Users',
-                        data: chartData.active_users,
-                        backgroundColor: '#8b5cf6',
-                        borderRadius: 6
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top', labels: { font: { family: 'Segoe UI', size: 11 } } }
-                },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-    }
-
-    // 2. Render Line Chart (Completion Rate Trend)
-    if (canvasTrends) {
-        const ctxTrends = canvasTrends.getContext("2d");
-        if (platformTrendsChartInstance) platformTrendsChartInstance.destroy();
-
-        platformTrendsChartInstance = new Chart(ctxTrends, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [
-                    {
-                        label: 'Session Completion Rate (%)',
-                        data: chartData.completion_rate,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                        tension: 0.35,
-                        fill: true,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#059669',
-                        pointRadius: 5
-                    },
-                    {
-                        label: 'User Retention Rate (%)',
-                        data: chartData.retention_rate,
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.08)',
-                        tension: 0.35,
-                        fill: true,
-                        borderWidth: 3,
-                        borderDash: [5, 5],
-                        pointBackgroundColor: '#4f46e5',
-                        pointRadius: 5
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top', labels: { font: { family: 'Segoe UI', size: 11 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) { return 'Completion Rate: ' + context.parsed.y + '%'; }
+            adminUsageChartInstance = new Chart(ctxUsage, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'Total Sessions',
+                            data: data.total_sessions || data.completed,
+                            backgroundColor: '#2563eb',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Completed Sessions',
+                            data: data.completed,
+                            backgroundColor: '#10b981',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Active Users',
+                            data: data.active_users,
+                            backgroundColor: '#8b5cf6',
+                            borderRadius: 6
                         }
-                    }
+                    ]
                 },
-                scales: {
-                    y: { min: 60, max: 100, grid: { color: 'rgba(0,0,0,0.05)' } },
-                    x: { grid: { display: false } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { family: 'Segoe UI', size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return context.dataset.label + ': ' + context.parsed.y + ' users/sessions'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
                 }
-            }
-        });
+            });
+        }
+
+        // 2. Render Line Chart (Session Completion & Retention Trend %)
+        if (canvasTrends) {
+            const ctxTrends = canvasTrends.getContext("2d");
+            if (platformTrendsChartInstance) platformTrendsChartInstance.destroy();
+
+            platformTrendsChartInstance = new Chart(ctxTrends, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'Session Completion Rate (%)',
+                            data: data.completion_rate,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                            tension: 0.35,
+                            fill: true,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#059669',
+                            pointRadius: 5
+                        },
+                        {
+                            label: 'User Retention Rate (%)',
+                            data: data.retention_rate,
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                            tension: 0.35,
+                            fill: true,
+                            borderWidth: 3,
+                            borderDash: [5, 5],
+                            pointBackgroundColor: '#4f46e5',
+                            pointRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { family: 'Segoe UI', size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return context.dataset.label + ': ' + context.parsed.y + '%'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { min: 60, max: 100, grid: { color: 'rgba(0,0,0,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+    };
+
+    // Draw demo charts SYNCHRONOUSLY INSTANTLY (0ms delay)
+    drawCharts(defaultChartData);
+
+    // Perform non-blocking background fetch if backend is available
+    if (window.location.protocol.startsWith("http") && !window.location.hostname.includes("github.io")) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1200);
+        fetch(API + `/api/analytics/usage?view=${currentAnalyticsView}`, { signal: controller.signal })
+            .then(res => res.ok ? res.json() : null)
+            .then(liveData => {
+                clearTimeout(timeoutId);
+                if (liveData && liveData.labels) drawCharts(liveData);
+            })
+            .catch(() => clearTimeout(timeoutId));
     }
 }
 
