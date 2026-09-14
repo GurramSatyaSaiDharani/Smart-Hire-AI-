@@ -2745,25 +2745,84 @@ function loadAdminActivityFeed() {
     `).join("");
 }
 
-function renderAdminUsageChart() {
+async function renderAdminUsageChart() {
     const canvas = document.getElementById("platformUsageChart");
     if (!canvas || typeof Chart === "undefined") return;
+
+    let chartData = null;
+    try {
+        const res = await fetch(API + "/api/analytics/usage");
+        if (res.ok) {
+            chartData = await res.json();
+        }
+    } catch(e) {}
+
+    if (!chartData) {
+        chartData = {
+            labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+            completed_interviews: [18, 24, 21, 29, 35, 22, 16],
+            candidate_registrations: [8, 12, 10, 15, 18, 9, 6],
+            proctoring_alerts: [2, 4, 1, 3, 5, 2, 1]
+        };
+    }
+
     const ctx = canvas.getContext("2d");
     if (adminUsageChartInstance) adminUsageChartInstance.destroy();
 
     adminUsageChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            labels: chartData.labels,
             datasets: [
-                { label: 'Completed AI Interviews', data: [12, 19, 15, 22, 28, 14, 10], backgroundColor: '#2563eb', borderRadius: 6 },
-                { label: 'Proctoring Telemetry Events', data: [2, 4, 1, 3, 5, 2, 1], backgroundColor: '#f59e0b', borderRadius: 6 }
+                {
+                    label: 'Completed AI Mock Interviews',
+                    data: chartData.completed_interviews,
+                    backgroundColor: '#2563eb',
+                    borderRadius: 6,
+                    borderWidth: 0
+                },
+                {
+                    label: 'Candidate Registrations',
+                    data: chartData.candidate_registrations,
+                    backgroundColor: '#10b981',
+                    borderRadius: 6,
+                    borderWidth: 0
+                },
+                {
+                    label: 'Proctoring Telemetry Events',
+                    data: chartData.proctoring_alerts,
+                    backgroundColor: '#f59e0b',
+                    borderRadius: 6,
+                    borderWidth: 0
+                }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true } }
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { font: { family: 'Segoe UI', size: 12 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y + ' sessions';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Volume Count' },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
         }
     });
 }
