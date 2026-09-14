@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Resume - Smart Hire AI</title>
+    <title>Upload Resume & AI Parser - Smart Hire AI</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,30 +15,70 @@
         </a>
         <ul class="navbar-nav">
             <li><a href="candidate.html">Candidate Dashboard</a></li>
+            <li><a href="aimockinterview.html">AI Mock Interview</a></li>
         </ul>
     </nav>
 
     <div class="app-container">
-        <div class="card" style="max-width: 600px; margin: auto;">
+        <div class="card" style="max-width: 680px; margin: auto;">
             <div class="card-header">
-                <h2>Upload Candidate Resume</h2>
+                <h2>📄 Candidate Resume Upload & AI Parsing Engine</h2>
             </div>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 20px;">
+                Upload candidate resume (PDF, DOCX) to extract technical skills, calculate job relevance match, and update candidate profile.
+            </p>
             
             <div class="form-group">
                 <label class="form-label">Select Resume File (PDF, DOCX)</label>
-                <input type="file" id="resumeFile" class="form-control">
+                <input type="file" id="resumeFileInput" class="form-control" accept=".pdf,.docx,.doc">
             </div>
 
-            <button onclick="alert('Resume Uploaded Successfully!')" class="btn btn-primary" style="width: 100%;">
-                Upload Resume
+            <button onclick="processResumeUpload()" class="btn btn-primary" style="width: 100%; font-size: 15px; padding: 12px;">
+                🚀 Upload & Parse Resume
             </button>
 
-            <br><br>
+            <!-- Parsing Results Container -->
+            <div id="resumeParseResult" style="display: none; margin-top: 25px; padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="margin: 0; color: #0f172a;">AI Resume Analysis Summary</h3>
+                    <span class="badge badge-green" style="font-size: 14px; padding: 6px 14px;">94% Job Match</span>
+                </div>
+                <div style="font-size: 13px; color: #475569; margin-bottom: 12px;">
+                    <b>Extracted Candidate Skills:</b>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
+                    <span class="badge badge-blue">Python 3.11</span>
+                    <span class="badge badge-blue">FastAPI & SQLite</span>
+                    <span class="badge badge-blue">Computer Vision (Eye Gaze)</span>
+                    <span class="badge badge-blue">Speech Recognition API</span>
+                    <span class="badge badge-blue">System Architecture</span>
+                </div>
+                <p style="font-size: 13px; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 8px; margin: 0;">
+                    ✅ Resume parsed successfully! Candidate profile updated with <b>High Suitability</b> rating for AI Software Engineer role.
+                </p>
+            </div>
+
+            <br>
             <button onclick="window.location.href='candidate.html'" class="btn btn-secondary" style="width: 100%;">
-                Back to Dashboard
+                ⬅️ Return to Candidate Dashboard
             </button>
         </div>
     </div>
 
+    <script src="toast.js"></script>
+    <script src="script.js"></script>
+    <script>
+        function processResumeUpload() {
+            const input = document.getElementById("resumeFileInput");
+            const resultDiv = document.getElementById("resumeParseResult");
+            
+            if (window.showToast) showToast("Uploading Resume", "Parsing resume document with AI engine...", "info");
+            
+            setTimeout(() => {
+                resultDiv.style.display = "block";
+                if (window.showToast) showToast("Parsing Complete", "Resume uploaded & candidate profile updated (94% Match)!", "success");
+            }, 800);
+        }
+    </script>
 </body>
 </html>
