@@ -2745,7 +2745,7 @@ function loadAdminActivityFeed() {
     `).join("");
 }
 
-let currentAnalyticsView = 'daily';
+let currentAnalyticsView = 'monthly';
 let platformTrendsChartInstance = null;
 
 function switchAnalyticsView(mode) {
@@ -2786,17 +2786,19 @@ async function renderAdminUsageChart() {
             chartData = {
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 completed: [42, 58, 52, 68, 85, 48, 34],
-                scheduled: [48, 62, 55, 72, 90, 50, 38],
+                total_sessions: [48, 62, 55, 72, 90, 50, 38],
                 active_users: [110, 145, 132, 168, 195, 125, 95],
-                completion_rate: [87.5, 93.5, 94.5, 94.4, 94.4, 96.0, 89.4]
+                completion_rate: [87.5, 93.5, 94.5, 94.4, 94.4, 96.0, 89.4],
+                retention_rate: [82.0, 85.5, 86.2, 88.4, 91.0, 88.5, 84.0]
             };
         } else {
             chartData = {
                 labels: ['Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026', 'Aug 2026', 'Sep 2026'],
                 completed: [145, 180, 210, 260, 310, 380],
-                scheduled: [160, 195, 225, 275, 330, 400],
+                total_sessions: [160, 195, 225, 275, 330, 400],
                 active_users: [320, 410, 520, 640, 750, 845],
-                completion_rate: [90.6, 92.3, 93.3, 94.5, 93.9, 95.0]
+                completion_rate: [90.6, 92.3, 93.3, 94.5, 93.9, 95.0],
+                retention_rate: [84.2, 86.5, 88.0, 91.2, 92.8, 94.5]
             };
         }
     }
@@ -2872,11 +2874,23 @@ async function renderAdminUsageChart() {
                         label: 'Session Completion Rate (%)',
                         data: chartData.completion_rate,
                         borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.12)',
                         tension: 0.35,
                         fill: true,
                         borderWidth: 3,
                         pointBackgroundColor: '#059669',
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'User Retention Rate (%)',
+                        data: chartData.retention_rate,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                        tension: 0.35,
+                        fill: true,
+                        borderWidth: 3,
+                        borderDash: [5, 5],
+                        pointBackgroundColor: '#4f46e5',
                         pointRadius: 5
                     }
                 ]
