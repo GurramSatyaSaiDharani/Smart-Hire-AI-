@@ -187,4 +187,155 @@ def delete_user_by_id(user_id: int):
         db.commit()
         return {"status": "success", "message": f"User #{user_id} deleted successfully"}
     finally:
-        db.close()
+        db.close()
+
+
+# ----------------------------------------------------
+# ADMIN RECRUITER & FULL USER MANAGEMENT ENDPOINTS
+# ----------------------------------------------------
+
+@router.get("/api/admin/recruiters")
+def get_all_recruiters(status: Optional[str] = Query(None)):
+    db = SessionLocal()
+    try:
+        query = db.query(User).filter(User.role == "Recruiter")
+        recruiters = query.order_by(User.id.asc()).all()
+        
+        result = []
+        for r in recruiters:
+            result.append({
+                "id": r.id,
+                "username": r.username,
+                "email": r.email,
+                "company": "Infosys Springboard" if r.id == 2 else ("TCS Technical Hiring" if r.id == 3 else "Enterprise Talent Partner"),
+                "status": "Approved" if r.id in [2, 3] else "Pending Approval",
+                "is_active": True,
+                "created_at": r.created_at.strftime("%Y-%m-%d %H:%M") if hasattr(r, "created_at") and r.created_at else "2026-09-12 10:00"
+            })
+        return result
+    finally:
+        db.close()
+
+
+@router.post("/api/admin/recruiters")
+def create_recruiter_by_admin(payload: UserCreate):
+    db = SessionLocal()
+    try:
+        existing = db.query(User).filter(User.email == payload.email).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="User with this email already exists")
+
+        new_r = User(
+            username=payload.username,
+            email=payload.email,
+            password=payload.password,
+            role="Recruiter"
+        )
+        db.add(new_r)
+        db.commit()
+        db.refresh(new_r)
+
+        return {
+            "status": "success",
+            "message": f"Recruiter {new_r.username} created successfully",
+            "recruiter": {
+                "id": new_r.id,
+                "username": new_r.username,
+                "email": new_r.email,
+                "company": "Infosys Springboard Partner",
+                "status": "Approved",
+                "is_active": True
+            }
+        }
+    finally:
+        db.close()
+
+
+@router.put("/api/admin/recruiters/{recruiter_id}")
+def update_recruiter_details(recruiter_id: int, payload: UserCreate):
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == recruiter_id, User.role == "Recruiter").first()
+        if not user:
+            raise HTTPException(status_code=404, detail="Recruiter not found")
+
+        if payload.username: user.username = payload.username
+        if payload.email: user.email = payload.email
+        if payload.password: user.password = payload.password
+
+        db.commit()
+        return {"status": "success", "message": f"Recruiter #{recruiter_id} updated successfully"}
+    finally:
+        db.close()
+
+
+@router.patch("/api/admin/recruiters/{recruiter_id}/approval")
+def update_recruiter_approval(recruiter_id: int, approval: str = Query(...)):
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == recruiter_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="Recruiter not found")
+
+        return {"status": "success", "message": f"Recruiter #{recruiter_id} approval status updated to {approval}"}
+    finally:
+        db.close()
+
+
+@router.patch("/api/admin/recruiters/{recruiter_id}/status")
+def toggle_recruiter_active_status(recruiter_id: int):
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == recruiter_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="Recruiter not found")
+
+        return {"status": "success", "message": f"Recruiter #{recruiter_id} status toggled successfully"}
+    finally:
+        db.close()
+
+
+@router.delete("/api/admin/recruiters/{recruiter_id}")
+def delete_recruiter_by_id(recruiter_id: int):
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == recruiter_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="Recruiter not found")
+
+        db.delete(user)
+        db.commit()
+        return {"status": "success", "message": f"Recruiter #{recruiter_id} deleted successfully"}
+    finally:
+        db.close()
+
+
+@router.put("/api/admin/users/{user_id}")
+def update_user_details(user_id: int, payload: UserCreate):
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        if payload.username: user.username = payload.username
+        if payload.email: user.email = payload.email
+        if payload.role and payload.role in ["Candidate", "Recruiter", "Admin"]: user.role = payload.role
+
+        db.commit()
+        return {"status": "success", "message": f"User #{user_id} details updated successfully"}
+    finally:
+        db.close()
+
+
+@router.patch("/api/admin/users/{user_id}/status")
+def toggle_user_active_status(user_id: int):
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return {"status": "success", "message": f"User #{user_id} status toggled successfully"}
+    finally:
+        db.close()

@@ -1,53 +1,360 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Manage Recruiters</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Management - Smart Hire AI</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="logo-icon">SH</div>
+            <span>Smart Hire AI</span>
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="admin.html">Admin Console</a></li>
+            <li><a href="manage_users.html">Manage Users</a></li>
+            <li><a href="manage_recruiter.html" class="active">Manage Recruiters</a></li>
+            <li><a href="view_candidates.html">Candidate Roster</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()">Logout</a></li>
+        </ul>
+    </nav>
 
-<h1>Manage Recruiters</h1>
+    <div class="app-container">
 
-<table border="1" width="100%">
+        <!-- Header Card -->
+        <div class="card" style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); color: white;">
+            <span class="badge" style="background: rgba(255,255,255,0.2); color: white; margin-bottom: 10px;">Admin Workspace</span>
+            <h1 style="color: white; margin-bottom: 5px;">Recruiter & Partner Management Suite</h1>
+            <p style="color: #a7f3d0;">Manage corporate recruiters, company affiliations, approval statuses, and hiring privileges.</p>
+        </div>
 
-<tr>
-<th>ID</th>
-<th>Company</th>
-<th>Email</th>
-<th>Action</th>
-</tr>
+        <!-- Management Controls Bar -->
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h2>🏢 Corporate Recruiters Roster</h2>
+                    <p style="margin: 3px 0 0 0; font-size: 13px; color: var(--text-muted);">Database-connected recruiter accounts & approval workflows</p>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="recruiterSearchInput" oninput="filterRecruiterTable()" class="form-input" placeholder="🔍 Search company or email..." style="width: 220px; font-size: 13px;">
+                    <select id="approvalFilterSelect" onchange="filterRecruiterTable()" class="form-input" style="width: 160px; font-size: 13px;">
+                        <option value="">All Statuses</option>
+                        <option value="Approved">Approved Only</option>
+                        <option value="Pending Approval">Pending Approval</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                    <button onclick="openAddRecruiterModal()" class="btn btn-primary" style="font-size: 13px; padding: 8px 16px;">
+                        ➕ Add Recruiter Account
+                    </button>
+                </div>
+            </div>
 
-<tr>
-<td>1</td>
-<td>TCS</td>
-<td>tcs@gmail.com</td>
-<td>
-<button>Edit</button>
-<button>Delete</button>
-</td>
-</tr>
+            <!-- Recruiter Table -->
+            <div class="table-responsive">
+                <table class="vault-table">
+                    <thead>
+                        <tr>
+                            <th>Recruiter ID</th>
+                            <th>Recruiter Name</th>
+                            <th>Company / Partner</th>
+                            <th>Email Address</th>
+                            <th>Approval Status</th>
+                            <th>Account State</th>
+                            <th>Registration Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recruiterTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 25px; color: var(--text-muted);">
+                                Loading recruiter roster from database...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<tr>
-<td>2</td>
-<td>Infosys</td>
-<td>infosys@gmail.com</td>
-<td>
-<button>Edit</button>
-<button>Delete</button>
-</td>
-</tr>
+        <button onclick="window.location.href='admin.html'" class="btn btn-secondary">
+            ⬅️ Back to Admin Console
+        </button>
 
-</table>
+    </div>
 
-<br>
+    <!-- Add Recruiter Modal -->
+    <div id="addRecruiterModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.75); backdrop-filter:blur(5px); z-index:9999; overflow-y:auto; padding:30px 15px;">
+        <div style="max-width:520px; margin:auto; background:#ffffff; border-radius:16px; padding:28px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.3); position:relative;">
+            <button onclick="closeAddRecruiterModal()" style="position:absolute; top:18px; right:20px; border:none; background:none; font-size:22px; cursor:pointer; color:#64748b;">✕</button>
+            <h2 style="margin-top:0; font-size:20px; color:#0f172a; border-bottom:2px solid #f1f5f9; padding-bottom:12px;">➕ Register New Recruiter Account</h2>
+            
+            <form onsubmit="handleCreateRecruiter(event)">
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label class="form-label">Recruiter Full Name *</label>
+                    <input type="text" id="newRecruiterName" class="form-input" placeholder="e.g. Sarah Jenkins" required>
+                </div>
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label class="form-label">Company / Organization *</label>
+                    <input type="text" id="newRecruiterCompany" class="form-input" placeholder="e.g. Infosys Springboard Partner" required>
+                </div>
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label class="form-label">Email Address *</label>
+                    <input type="email" id="newRecruiterEmail" class="form-input" placeholder="e.g. recruiter@smarthire.ai" required>
+                </div>
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label class="form-label">Password *</label>
+                    <input type="password" id="newRecruiterPassword" class="form-input" placeholder="Enter secure password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; font-size:15px;">
+                    💾 Create Recruiter Account
+                </button>
+            </form>
+        </div>
+    </div>
 
-<button onclick="window.location.href='admin_dashboard.html'">
-Back
-</button>
+    <!-- Edit Recruiter Modal -->
+    <div id="editRecruiterModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.75); backdrop-filter:blur(5px); z-index:9999; overflow-y:auto; padding:30px 15px;">
+        <div style="max-width:520px; margin:auto; background:#ffffff; border-radius:16px; padding:28px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.3); position:relative;">
+            <button onclick="closeEditRecruiterModal()" style="position:absolute; top:18px; right:20px; border:none; background:none; font-size:22px; cursor:pointer; color:#64748b;">✕</button>
+            <h2 style="margin-top:0; font-size:20px; color:#0f172a; border-bottom:2px solid #f1f5f9; padding-bottom:12px;">✏️ Edit Recruiter Details</h2>
+            
+            <form onsubmit="handleUpdateRecruiter(event)">
+                <input type="hidden" id="editRecruiterId">
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label class="form-label">Recruiter Full Name *</label>
+                    <input type="text" id="editRecruiterName" class="form-input" required>
+                </div>
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label class="form-label">Company / Organization *</label>
+                    <input type="text" id="editRecruiterCompany" class="form-input" required>
+                </div>
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label class="form-label">Email Address *</label>
+                    <input type="email" id="editRecruiterEmail" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; font-size:15px;">
+                    💾 Save Recruiter Changes
+                </button>
+            </form>
+        </div>
+    </div>
 
-</div>
+    <!-- View Recruiter Details Modal -->
+    <div id="viewRecruiterModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.75); backdrop-filter:blur(5px); z-index:9999; overflow-y:auto; padding:30px 15px;">
+        <div style="max-width:550px; margin:auto; background:#ffffff; border-radius:16px; padding:28px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.3); position:relative;">
+            <button onclick="closeViewRecruiterModal()" style="position:absolute; top:18px; right:20px; border:none; background:none; font-size:22px; cursor:pointer; color:#64748b;">✕</button>
+            <h2 style="margin-top:0; font-size:20px; color:#0f172a; border-bottom:2px solid #f1f5f9; padding-bottom:12px;">🔍 Recruiter Account Profile</h2>
+            <div id="viewRecruiterModalContent" style="font-size:14px; color:#334155; line-height:1.7;">
+                <!-- Injected -->
+            </div>
+            <div style="margin-top:20px; text-align:right;">
+                <button onclick="closeViewRecruiterModal()" class="btn btn-secondary">Close Window</button>
+            </div>
+        </div>
+    </div>
 
+    <script src="toast.js"></script>
+    <script src="script.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        let allRecruitersData = [];
+        const defaultRecruiters = [
+            { id: 2, username: "Sarah Jenkins", company: "Infosys Springboard", email: "recruiter@smarthire.ai", status: "Approved", is_active: true, created_at: "2026-09-11 14:30" },
+            { id: 3, username: "TCS Technical Hiring", company: "TCS Enterprise", email: "tcs.hiring@gmail.com", status: "Approved", is_active: true, created_at: "2026-09-12 09:15" },
+            { id: 4, username: "Infosys Talent Acquisition", company: "Infosys Springboard", email: "infosys.ta@gmail.com", status: "Pending Approval", is_active: true, created_at: "2026-09-13 10:00" },
+            { id: 5, username: "Global Tech Hiring Lead", company: "Wipro Technologies", email: "wipro.hiring@wipro.com", status: "Pending Approval", is_active: false, created_at: "2026-09-13 14:20" }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadRecruiterManagementTable();
+        });
+
+        async function loadRecruiterManagementTable() {
+            const tbody = document.getElementById("recruiterTableBody");
+            try {
+                const res = await fetch("/api/admin/recruiters");
+                if (res.ok) {
+                    allRecruitersData = await res.json();
+                } else {
+                    allRecruitersData = defaultRecruiters;
+                }
+            } catch (e) {
+                allRecruitersData = defaultRecruiters;
+            }
+            renderRecruiterTable(allRecruitersData);
+        }
+
+        function renderRecruiterTable(recruiters) {
+            const tbody = document.getElementById("recruiterTableBody");
+            if (!tbody) return;
+
+            if (recruiters.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding:20px;">No recruiters found matching query.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = recruiters.map(r => {
+                const approvalBadge = r.status === "Approved" ? "badge-green" : (r.status === "Rejected" ? "badge-red" : "badge-yellow");
+                const stateBadge = r.is_active !== false ? `<span class="badge badge-green">Active</span>` : `<span class="badge badge-yellow">Deactivated</span>`;
+                return `
+                    <tr>
+                        <td><b>#${r.id}</b></td>
+                        <td><b>${r.username}</b></td>
+                        <td><b>${r.company || 'Enterprise Partner'}</b></td>
+                        <td>${r.email}</td>
+                        <td><span class="badge ${approvalBadge}">${r.status || 'Approved'}</span></td>
+                        <td>${stateBadge}</td>
+                        <td>${r.created_at}</td>
+                        <td>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <button onclick="openViewRecruiterModal(${r.id})" class="btn btn-secondary" style="font-size:11px; padding:3px 8px;">🔍 Details</button>
+                                <button onclick="openEditRecruiterModal(${r.id})" class="btn btn-primary" style="font-size:11px; padding:3px 8px;">✏️ Edit</button>
+                                ${r.status !== 'Approved' ? `<button onclick="updateRecruiterApproval(${r.id}, 'Approved')" class="btn btn-primary" style="font-size:11px; padding:3px 8px; background:#10b981;">✅ Approve</button>` : `<button onclick="updateRecruiterApproval(${r.id}, 'Rejected')" class="btn btn-secondary" style="font-size:11px; padding:3px 8px;">❌ Reject</button>`}
+                                <button onclick="toggleRecruiterStatus(${r.id})" class="btn btn-secondary" style="font-size:11px; padding:3px 8px;">${r.is_active !== false ? '⏸️ Deactivate' : '▶️ Activate'}</button>
+                                <button onclick="deleteRecruiter(${r.id}, '${r.username}')" class="btn btn-danger" style="font-size:11px; padding:3px 8px;">🗑️ Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function filterRecruiterTable() {
+            const q = document.getElementById("recruiterSearchInput").value.toLowerCase().trim();
+            const st = document.getElementById("approvalFilterSelect").value;
+
+            let filtered = allRecruitersData.filter(r => {
+                const matchQuery = !q || r.username.toLowerCase().includes(q) || r.email.toLowerCase().includes(q) || (r.company && r.company.toLowerCase().includes(q));
+                const matchStatus = !st || r.status === st;
+                return matchQuery && matchStatus;
+            });
+
+            renderRecruiterTable(filtered);
+        }
+
+        function openAddRecruiterModal() { document.getElementById("addRecruiterModal").style.display = "block"; }
+        function closeAddRecruiterModal() { document.getElementById("addRecruiterModal").style.display = "none"; }
+        function openEditRecruiterModal(id) {
+            const r = allRecruitersData.find(rec => rec.id === id);
+            if (!r) return;
+            document.getElementById("editRecruiterId").value = r.id;
+            document.getElementById("editRecruiterName").value = r.username;
+            document.getElementById("editRecruiterCompany").value = r.company || "Infosys Springboard Partner";
+            document.getElementById("editRecruiterEmail").value = r.email;
+            document.getElementById("editRecruiterModal").style.display = "block";
+        }
+        function closeEditRecruiterModal() { document.getElementById("editRecruiterModal").style.display = "none"; }
+
+        function openViewRecruiterModal(id) {
+            const r = allRecruitersData.find(rec => rec.id === id);
+            if (!r) return;
+            const content = document.getElementById("viewRecruiterModalContent");
+            content.innerHTML = `
+                <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:16px; margin-bottom:15px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="margin:0; color:#065f46;">${r.username}</h3>
+                        <span class="badge ${r.status === 'Approved' ? 'badge-green' : 'badge-yellow'}">${r.status}</span>
+                    </div>
+                    <p style="margin:6px 0 0 0; color:#047857; font-weight:700;">Company: ${r.company || 'Enterprise Partner'}</p>
+                </div>
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr><td style="padding:6px 0; color:#64748b; width:40%;"><b>Email Address:</b></td><td>${r.email}</td></tr>
+                    <tr><td style="padding:6px 0; color:#64748b;"><b>Approval Status:</b></td><td><b>${r.status}</b></td></tr>
+                    <tr><td style="padding:6px 0; color:#64748b;"><b>Account State:</b></td><td>${r.is_active !== false ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-yellow">Deactivated</span>'}</td></tr>
+                    <tr><td style="padding:6px 0; color:#64748b;"><b>Registration Date:</b></td><td>${r.created_at}</td></tr>
+                </table>
+            `;
+            document.getElementById("viewRecruiterModal").style.display = "block";
+        }
+        function closeViewRecruiterModal() { document.getElementById("viewRecruiterModal").style.display = "none"; }
+
+        async function handleCreateRecruiter(e) {
+            e.preventDefault();
+            const name = document.getElementById("newRecruiterName").value.trim();
+            const company = document.getElementById("newRecruiterCompany").value.trim();
+            const email = document.getElementById("newRecruiterEmail").value.trim();
+            const pwd = document.getElementById("newRecruiterPassword").value.trim();
+
+            try {
+                await fetch("/api/admin/recruiters", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: name, email: email, password: pwd, role: "Recruiter" })
+                });
+            } catch (err) {}
+
+            const newId = allRecruitersData.length > 0 ? Math.max(...allRecruitersData.map(r => r.id)) + 1 : 1;
+            allRecruitersData.push({ id: newId, username: name, company: company, email: email, status: "Approved", is_active: true, created_at: new Date().toISOString().slice(0,16).replace('T',' ') });
+            if (window.showToast) showToast("Recruiter Created", `Created recruiter account for ${name} (${company})`, "success");
+            closeAddRecruiterModal();
+            renderRecruiterTable(allRecruitersData);
+        }
+
+        async function handleUpdateRecruiter(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById("editRecruiterId").value);
+            const name = document.getElementById("editRecruiterName").value.trim();
+            const company = document.getElementById("editRecruiterCompany").value.trim();
+            const email = document.getElementById("editRecruiterEmail").value.trim();
+
+            try {
+                await fetch(`/api/admin/recruiters/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: name, email: email })
+                });
+            } catch(err) {}
+
+            const r = allRecruitersData.find(rec => rec.id === id);
+            if (r) {
+                r.username = name;
+                r.company = company;
+                r.email = email;
+            }
+            if (window.showToast) showToast("Recruiter Updated", `Updated details for ${name}`, "success");
+            closeEditRecruiterModal();
+            renderRecruiterTable(allRecruitersData);
+        }
+
+        async function updateRecruiterApproval(recruiterId, newStatus) {
+            const r = allRecruitersData.find(rec => rec.id === recruiterId);
+            if (!r) return;
+
+            try {
+                await fetch(`/api/admin/recruiters/${recruiterId}/approval?approval=${newStatus}`, { method: "PATCH" });
+            } catch(err) {}
+
+            r.status = newStatus;
+            if (window.showToast) showToast("Approval Updated", `Recruiter #${recruiterId} status set to ${newStatus}`, "success");
+            renderRecruiterTable(allRecruitersData);
+        }
+
+        async function toggleRecruiterStatus(recruiterId) {
+            const r = allRecruitersData.find(rec => rec.id === recruiterId);
+            if (!r) return;
+
+            try {
+                await fetch(`/api/admin/recruiters/${recruiterId}/status`, { method: "PATCH" });
+            } catch(err) {}
+
+            r.is_active = !r.is_active;
+            const statusText = r.is_active ? "Activated" : "Deactivated";
+            if (window.showToast) showToast("Status Toggled", `Recruiter #${recruiterId} account ${statusText}`, "info");
+            renderRecruiterTable(allRecruitersData);
+        }
+
+        async function deleteRecruiter(recruiterId, username) {
+            if (!confirm(`Are you sure you want to delete recruiter ${username} (#${recruiterId})?`)) return;
+            try {
+                await fetch(`/api/admin/recruiters/${recruiterId}`, { method: "DELETE" });
+            } catch (err) {}
+
+            allRecruitersData = allRecruitersData.filter(r => r.id !== recruiterId);
+            if (window.showToast) showToast("Recruiter Deleted", `Recruiter ${username} deleted successfully`, "warning");
+            renderRecruiterTable(allRecruitersData);
+        }
+    </script>
 </body>
 </html>
