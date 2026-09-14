@@ -2766,7 +2766,12 @@ function switchAnalyticsView(mode) {
 async function renderAdminUsageChart() {
     const canvasUsage = document.getElementById("platformUsageChart");
     const canvasTrends = document.getElementById("platformTrendsChart");
-    if (typeof Chart === "undefined") return;
+
+    if (typeof Chart === "undefined") {
+        console.warn("Chart.js initializing, retrying renderAdminUsageChart in 200ms...");
+        setTimeout(renderAdminUsageChart, 200);
+        return;
+    }
 
     let chartData = null;
     try {
@@ -2904,3 +2909,16 @@ function toggleInterviewReminder(recruiterName) {
         alert(`🔔 Reminder alert set for mock interview with ${recruiterName}!`);
     }
 }
+
+/* Auto-render charts on window full load */
+window.addEventListener('load', () => {
+    if (typeof loadCandidateDashboardData === 'function' && document.getElementById('performanceTrendsChart')) {
+        loadCandidateDashboardData();
+    }
+    if (typeof loadRecruiterDashboardData === 'function' && document.getElementById('recruiterPerformanceTrendsChart')) {
+        loadRecruiterDashboardData();
+    }
+    if (typeof renderAdminUsageChart === 'function' && document.getElementById('platformUsageChart')) {
+        renderAdminUsageChart();
+    }
+});
